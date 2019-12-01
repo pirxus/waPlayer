@@ -1,18 +1,17 @@
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from database import Database
+from view import View
+from model import Model
 
-class View(QtWidgets.QMainWindow):
+class Controller():
 
     def __init__(self):
-        super(View, self).__init__()
-        self.view = uic.loadUi('player.ui', self)
+        self.view = View()
+        self.model = Model()
 
         self.view.actionOpen_File.triggered.connect(self.openFile)
         self.view.pushButtonPlay.clicked.connect(self.playPresed)
-
         self.view.listAll_Songs.itemDoubleClicked.connect(self.openFile)
-
-        self.show()
 
     def openFile(self):
         print(self.view.listAll_Songs.currentItem().text())
