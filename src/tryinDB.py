@@ -7,11 +7,12 @@ song1 = Song(None, 'What I\'ve Done', 'Linkin Park', 'Minutes to Midnight', 2009
 song2 = Song(None, 'Leave out all the rest', 'Linkin Park', 'Minutes to Midnight', 2009)
 
 db_t = Database()
-#db_t.insert_song(song2)
+db_t.insert_song(song2)
 
 wanted = Query()
 
 list1 = db_t.search_by_name('What')
+db_t.delete_by_name('Leave out all the rest')
 list2 = db_t.get_all()
 for item in list2:
     print(item['name'])
