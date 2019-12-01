@@ -43,6 +43,9 @@ border-radius:10px;
     <property name="cursor">
      <cursorShape>ArrowCursor</cursorShape>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
     </property>
@@ -54,7 +57,7 @@ border-radius:10px;
 </string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideMiddle</enum>
@@ -186,11 +189,14 @@ border-radius:10px;
     <widget class="QPushButton" name="pushButtonPlay">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>130</x>
        <y>340</y>
-       <width>30</width>
+       <width>51</width>
        <height>30</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string>Play</string>
@@ -205,6 +211,9 @@ border-radius:10px;
        <height>211</height>
       </rect>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
     </widget>
     <widget class="QSlider" name="sliderSongProgress">
      <property name="geometry">
@@ -214,6 +223,9 @@ border-radius:10px;
        <width>211</width>
        <height>24</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -228,6 +240,15 @@ border-radius:10px;
        <height>24</height>
       </rect>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="value">
+      <number>99</number>
+     </property>
+     <property name="tracking">
+      <bool>true</bool>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -241,6 +262,9 @@ border-radius:10px;
        <height>30</height>
       </rect>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="text">
       <string>&lt;&lt;</string>
      </property>
@@ -253,6 +277,9 @@ border-radius:10px;
        <width>71</width>
        <height>30</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string>&gt;&gt;</string>
