@@ -7,7 +7,7 @@ class View(QtWidgets.QMainWindow):
     def __init__(self):
         super(View, self).__init__()
         self.view = uic.loadUi('player.ui', self)
-        self.view.label.setPixmap(QPixmap('/home/pirx/Music/cover.jpg'))
+        self.view.label.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
         self.show()
 
     def addControls(self):

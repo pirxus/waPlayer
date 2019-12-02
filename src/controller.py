@@ -1,7 +1,7 @@
 from database import Database
 from view import View
 from PyQt5.QtCore import QUrl, QDirIterator, Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
@@ -39,6 +39,7 @@ class Controller(QWidget):
         self.player.metaDataChanged.connect(self.metaDataChanged)
         self.player.durationChanged.connect(self.updateDuration)
         self.player.positionChanged.connect(self.updateSongProgress)
+        self.player.stateChanged.connect(self.updatePlayerState)
 
 
     def openFile(self):
@@ -47,7 +48,8 @@ class Controller(QWidget):
         if song[0] != '':
             url = QUrl.fromLocalFile(song[0])
             self.playlist.addMedia(QMediaContent(url))
-            self.view.pushButtonPlay.setText('pause')
+            self.view.pushButtonPlay.setIcon(
+                QIcon('../assets/icons/actions/media-playback-pause.png'))
             self.player.play()
             self.playerState = 1
 
@@ -65,7 +67,8 @@ class Controller(QWidget):
             self.playerState = 1
     
         self.view.listAllSongs.sortItems()
-        self.view.pushButtonPlay.setText('pause')
+        self.view.pushButtonPlay.setIcon(
+                QIcon('../assets/icons/actions/media-playback-pause.png'))
 
     def folderIterator(self):
         folderChosen = QFileDialog.getExistingDirectory(self, 'Open Music Folder', '~')
@@ -95,30 +98,37 @@ class Controller(QWidget):
         elif self.playerState == 1:
             self.player.pause()
             self.playerState = 2
-            self.view.pushButtonPlay.setText('play')
+            self.view.pushButtonPlay.setIcon(
+                QIcon('../assets/icons/actions/gtk-media-play-ltr.png'))
 
         elif self.playerState == 2 or self.playerState == 0:
             self.player.play()
             self.playerState = 1
-            self.view.pushButtonPlay.setText('pause')
+            self.view.pushButtonPlay.setIcon(
+                QIcon('../assets/icons/actions/media-playback-pause.png'))
 
     def nextButtonPressed(self):
         self.player.playlist().next()
 
     def prevButtonPressed(self):
-        if self.player.position() > 5000:
+        if self.player.position() < 5000 or self.player.playlist():
             self.player.setPosition(0)
         else:
             self.player.playlist().previous()
 
     def metaDataChanged(self):
+        artUrl = None
+
         if self.player.isMetaDataAvailable():
             #print(self.player.metaData(QMediaMetaData.Artist))
             #print(self.player.metaData(QMediaMetaData.CoverArtUrlLarge))
             self.view.listAllSongs.addItem(self.player.metaData(QMediaMetaData.Author))
-            self.view.label.setPixmap(QPixmap(QMediaMetaData.CoverArtImage))
-            pass
+            artUrl = self.player.metaData(QMediaMetaData.CoverArtUrlSmall)
 
+        if artUrl == None:
+            artUrl = '../assets/cover.jpg'
+
+        self.view.label.setPixmap(QPixmap(artUrl))
 
     def updateDuration(self, duration):
         self.view.sliderSongProgress.setMaximum(duration)
@@ -130,6 +140,12 @@ class Controller(QWidget):
         self.view.sliderSongProgress.blockSignals(True)
         self.view.sliderSongProgress.setValue(time)
         self.view.sliderSongProgress.blockSignals(False)
+
+    def updatePlayerState(self, state):
+        if state == QMediaPlayer.StoppedState:
+            self.playerState = 0;
+            self.view.pushButtonPlay.setIcon(
+                QIcon('../assets/icons/actions/gtk-media-play-ltr.png'))
 
     def changeVolume(self, value):
         self.player.setVolume(value)
