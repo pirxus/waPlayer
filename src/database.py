@@ -6,7 +6,7 @@ import json
 
 class Database(TinyDB, Query):
     def __init__(self):
-        self.database = TinyDB('db_files/database.json')
+        self.database = TinyDB('../db_files/database.json')
 
     # inserts new song into the database
     def insert_song(self, song):
@@ -32,10 +32,14 @@ class Database(TinyDB, Query):
     def delete_by_name(self, name):
         query = Query()
         self.database.remove(query.name == name)
+    
+    # clears the database
+    def db_purge(self):
+        self.database.purge()
 
 
 class Song:
-    def __init__(self, path, name, artist, album, year):
+    def __init__(self, path, name, artist, album, year): #TODO - add track number
         self.path = path
         self.name = name
         self.artist = artist

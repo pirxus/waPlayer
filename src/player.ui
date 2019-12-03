@@ -10,8 +10,14 @@
     <height>538</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>10</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Music Player</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QTabWidget
@@ -59,8 +65,7 @@ QPushButton:pressed {
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-radius:50
-</string>
+     <string notr="true"/>
     </property>
     <property name="currentIndex">
      <number>1</number>
@@ -102,46 +107,9 @@ QPushButton:pressed {
      </widget>
     </widget>
     <widget class="QWidget" name="tab_albums">
-     <property name="styleSheet">
-      <string notr="true">border-radius:30;</string>
-     </property>
      <attribute name="title">
       <string>Albums</string>
      </attribute>
-     <widget class="QScrollArea" name="scrollArea_2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>591</width>
-        <height>391</height>
-       </rect>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents_2">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>591</width>
-         <height>391</height>
-        </rect>
-       </property>
-       <widget class="QWidget" name="gridLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>-1</x>
-          <y>-1</y>
-          <width>601</width>
-          <height>391</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout"/>
-       </widget>
-      </widget>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_artists">
      <attribute name="title">
@@ -164,8 +132,8 @@ QPushButton:pressed {
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>601</width>
-         <height>391</height>
+         <width>597</width>
+         <height>387</height>
         </rect>
        </property>
       </widget>
@@ -196,7 +164,7 @@ QPushButton:pressed {
      <property name="geometry">
       <rect>
        <x>121</x>
-       <y>366</y>
+       <y>380</y>
        <width>51</width>
        <height>35</height>
       </rect>
@@ -222,7 +190,7 @@ QPushButton:pressed {
      <property name="geometry">
       <rect>
        <x>56</x>
-       <y>325</y>
+       <y>339</y>
        <width>171</width>
        <height>24</height>
       </rect>
@@ -260,7 +228,7 @@ QPushButton:pressed {
      <property name="geometry">
       <rect>
        <x>29</x>
-       <y>366</y>
+       <y>380</y>
        <width>71</width>
        <height>35</height>
       </rect>
@@ -286,7 +254,7 @@ QPushButton:pressed {
      <property name="geometry">
       <rect>
        <x>188</x>
-       <y>366</y>
+       <y>380</y>
        <width>71</width>
        <height>35</height>
       </rect>
@@ -315,7 +283,7 @@ QPushButton:pressed {
      <property name="geometry">
       <rect>
        <x>41</x>
-       <y>76</y>
+       <y>90</y>
        <width>210</width>
        <height>210</height>
       </rect>
@@ -326,7 +294,7 @@ QPushButton:pressed {
      <property name="styleSheet">
       <string notr="true">border:1px solid black;
 border-width:2px;
-border-color:rgb(46, 52, 54)</string>
+border-color:rgb(46, 52, 54);</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::WinPanel</enum>
@@ -348,7 +316,7 @@ border-color:rgb(46, 52, 54)</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>326</y>
+       <y>340</y>
        <width>41</width>
        <height>20</height>
       </rect>
@@ -364,7 +332,7 @@ border-color:rgb(46, 52, 54)</string>
      <property name="geometry">
       <rect>
        <x>237</x>
-       <y>326</y>
+       <y>340</y>
        <width>41</width>
        <height>20</height>
       </rect>
@@ -443,10 +411,10 @@ border-color:rgb(46, 52, 54)</string>
     <widget class="QLabel" name="labelPlayerSongAlbumArtist">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>290</y>
-       <width>211</width>
-       <height>19</height>
+       <x>10</x>
+       <y>304</y>
+       <width>271</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -465,14 +433,14 @@ border-color:rgb(46, 52, 54)</string>
     <widget class="QLabel" name="labelPlayerSongName">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>57</y>
-       <width>211</width>
+       <x>10</x>
+       <y>71</y>
+       <width>271</width>
        <height>20</height>
       </rect>
      </property>
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -511,7 +479,7 @@ border-color:rgb(46, 52, 54)</string>
     </property>
     <addaction name="actionOpen_File"/>
     <addaction name="actionOpen_Files"/>
-    <addaction name="actionOpen_Folder"/>
+    <addaction name="actionImport_Library"/>
    </widget>
    <widget class="QMenu" name="menuSong">
     <property name="title">
@@ -530,7 +498,7 @@ border-color:rgb(46, 52, 54)</string>
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionOpen_Folder">
+  <action name="actionImport_Library">
    <property name="text">
     <string>Import Library...</string>
    </property>

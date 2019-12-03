@@ -1,10 +1,15 @@
-from database import Database
+
+from database import Database, Song
 from view import View
+
+import eyed3
+import threading
+
 from PyQt5.QtCore import QUrl, QDirIterator, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
+
 
 class Controller(QWidget):
 
@@ -23,6 +28,8 @@ class Controller(QWidget):
     def setupView(self):
         self.view.actionOpen_File.triggered.connect(self.openFile)
         self.view.actionOpen_Files.triggered.connect(self.openFiles)
+        self.view.actionImport_Library.triggered.connect(self.importLibrary)
+
         self.view.pushButtonPlay.clicked.connect(self.playButtonPressed)
         self.view.pushButtonPrev.clicked.connect(self.prevButtonPressed)
         self.view.pushButtonNext.clicked.connect(self.nextButtonPressed)
@@ -70,7 +77,7 @@ class Controller(QWidget):
                 QIcon('../assets/icons/actions/media-playback-pause.png'))
 
     def folderIterator(self):
-        folderChosen = QFileDialog.getExistingDirectory(self, 'Open Music Folder', '~')
+        folderChosen = QFileDialog.getExistingDirectory(self, 'Open Music Folder', '~/')
         if folderChosen != None:
             it = QDirIterator(folderChosen)
             it.next()
@@ -89,6 +96,38 @@ class Controller(QWidget):
                     url = QUrl.fromLocalFile(it.filePath())
                     self.playlist.addMedia(QMediaContent(url))
                     self.view.listAllSongs.addItem(url.fileName())
+
+    def importLibrary(self):
+        self.database.db_purge()
+        folder = QFileDialog.getExistingDirectory(self, 'Open Music Folder', '~/')
+        thread = threading.Thread(target = self.importRecursiveIterator, args = (folder, ), daemon = True)
+        thread.start()
+
+    def importRecursiveIterator(self, folder):
+        if folder!= None:
+            it = QDirIterator(folder)
+            it.Subdirectories = True
+            it.next()
+            while it.hasNext():
+                if it.fileInfo().isDir() == False and it.filePath() != '.':
+                    fInfo = it.fileInfo()
+                    if fInfo.suffix() in ('mp3'):
+                        url = it.filePath()
+                        af = eyed3.load(url) # audiofile
+                        song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate())
+                        self.database.insert_song(song)
+                elif it.fileInfo().isDir() == True and it.fileName() != '..' and it.fileName() != '.':
+                    self.importRecursiveIterator(it.filePath())
+                it.next()
+            if it.fileInfo().isDir() == False and it.filePath() != '.':
+                fInfo = it.fileInfo()
+                if fInfo.suffix() in ('mp3'):
+                    url = it.filePath()
+                    af = eyed3.load(url) # audiofile
+                    song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate())
+                    self.database.insert_song(song)
+            elif it.fileInfo().isDir() == True and it.fileName() != '..' and it.fileName() != '.':
+                self.importRecursiveIterator(it.filePath())
 
     def playButtonPressed(self):
         if self.playerState == -1:
@@ -132,6 +171,8 @@ class Controller(QWidget):
 
             if songName != None:
                 self.view.labelPlayerSongName.setText(songName)
+            else:
+                self.view.labelPlayerSongName.setText(self.player.currentMedia().canonicalUrl().fileName())
 
             if artistName != None:
                 self.view.labelPlayerSongAlbumArtist.setText(artistName)
