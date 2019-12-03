@@ -133,7 +133,6 @@ class Controller(QWidget):
             artUrl = '../assets/cover.jpg'
 
         self.view.label.setPixmap(QPixmap(artUrl))
-        self.view.cover_label_1.setPixmap(QPixmap(artUrl))
 
     def updateDuration(self, duration):
         self.view.sliderSongProgress.setMaximum(duration)
@@ -164,18 +163,18 @@ class Controller(QWidget):
         self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout.setColumnStretch(1,4)
 
-        num = 9
+        num = 7
         counter = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
         for i in range(4):
             for j in range(4):
 
-                albumCover2 = QPushButton()
-                albumCover2.setIcon(QIcon('../assets/cover.jpg'))
-                albumCover2.setIconSize(QSize(140, 140))
-                albumCover2.setMinimumHeight(140)
-                albumCover2.setMaximumHeight(140)
-                albumCover2.setStyleSheet('QPushButton {background-color: #ffffff;}')
+                albumCover = QPushButton()
+                albumCover.setIcon(QIcon('../assets/cover.jpg'))
+                albumCover.setIconSize(QSize(138, 138))
+                albumCover.setMinimumHeight(138)
+                albumCover.setMaximumHeight(138)
+                albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
 
                 title = QLabel('Album Name')
                 title.setAlignment(Qt.AlignHCenter)
@@ -183,10 +182,10 @@ class Controller(QWidget):
 
                 subLayout = QVBoxLayout()
                 if(counter < num):
-                    subLayout.addWidget(albumCover2)
+                    subLayout.addWidget(albumCover)
                     subLayout.addWidget(title)
                 else:
-                    self.spaceItem = QSpacerItem(140, 140, QSizePolicy.Expanding)
+                    self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Expanding)
                     subLayout.addSpacerItem(self.spaceItem)
 
                 self.gridLayout.addLayout(subLayout, i, j)
