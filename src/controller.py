@@ -53,7 +53,6 @@ class Controller(QWidget):
             self.player.play()
             self.playerState = 1
 
-            #print(self.player.metaData(QMediaMetaData.ContributingArtist))
             self.view.listAllSongs.addItem(url.fileName())
 
     def openFiles(self):
@@ -111,24 +110,35 @@ class Controller(QWidget):
         self.player.playlist().next()
 
     def prevButtonPressed(self):
-        if self.player.position() < 5000 or self.player.playlist():
+        if self.player.position() > 5000:
             self.player.setPosition(0)
         else:
             self.player.playlist().previous()
 
     def metaDataChanged(self):
-        artUrl = None
+        self.view.labelPlayerSongName.clear()
+        self.view.labelPlayerSongAlbumArtist.clear()
 
         if self.player.isMetaDataAvailable():
-            #print(self.player.metaData(QMediaMetaData.Artist))
-            #print(self.player.metaData(QMediaMetaData.CoverArtUrlLarge))
-            self.view.listAllSongs.addItem(self.player.metaData(QMediaMetaData.Author))
-            artUrl = self.player.metaData(QMediaMetaData.CoverArtUrlSmall)
+            coverArt = self.player.metaData(QMediaMetaData.CoverArtImage)
+            artistName = self.player.metaData(QMediaMetaData.ContributingArtist)
+            albumName = self.player.metaData(QMediaMetaData.AlbumTitle)
+            songName = self.player.metaData(QMediaMetaData.Title)
 
-        if artUrl == None:
-            artUrl = '../assets/cover.jpg'
+            if coverArt == None:
+                self.view.label.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
+            else:
+                self.view.label.setPixmap(QPixmap.fromImage(coverArt))
 
-        self.view.label.setPixmap(QPixmap(artUrl))
+            if songName != None:
+                self.view.labelPlayerSongName.setText(songName)
+
+            if artistName != None:
+                self.view.labelPlayerSongAlbumArtist.setText(artistName)
+                if albumName != None:
+                    self.view.labelPlayerSongAlbumArtist.setText(
+                            artistName + ' - ' + albumName)
+
 
     def updateDuration(self, duration):
         self.view.sliderSongProgress.setMaximum(duration)
