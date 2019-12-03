@@ -1,9 +1,10 @@
 from database import Database
 from view import View
-from PyQt5.QtCore import QUrl, QDirIterator, Qt
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize, QRect
+from PyQt5.QtGui import QPixmap, QIcon, QPalette
 
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, \
+    QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QGridLayout, QScrollArea, QLabel, QSpacerItem, QSizePolicy
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 class Controller(QWidget):
@@ -30,6 +31,7 @@ class Controller(QWidget):
 
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
+        self.createAlbumGrid()
 
 
     # This method sets up the signals for the player class
@@ -40,6 +42,8 @@ class Controller(QWidget):
         self.player.durationChanged.connect(self.updateDuration)
         self.player.positionChanged.connect(self.updateSongProgress)
         self.player.stateChanged.connect(self.updatePlayerState)
+
+        self.player.metaDataChanged.connect(self.metaDataChanged)
 
 
     def openFile(self):
@@ -129,6 +133,7 @@ class Controller(QWidget):
             artUrl = '../assets/cover.jpg'
 
         self.view.label.setPixmap(QPixmap(artUrl))
+        self.view.cover_label_1.setPixmap(QPixmap(artUrl))
 
     def updateDuration(self, duration):
         self.view.sliderSongProgress.setMaximum(duration)
@@ -143,12 +148,50 @@ class Controller(QWidget):
 
     def updatePlayerState(self, state):
         if state == QMediaPlayer.StoppedState:
-            self.playerState = 0;
+            self.playerState = 0
             self.view.pushButtonPlay.setIcon(
                 QIcon('../assets/icons/actions/gtk-media-play-ltr.png'))
 
     def changeVolume(self, value):
         self.player.setVolume(value)
+
+    def createAlbumGrid(self):
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setStyleSheet('QWidget {background-color: #ffffff;}')
+
+        self.gridLayout = QGridLayout(self.scrollAreaWidgetContents)
+
+        self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout.setColumnStretch(1,4)
+
+        num = 9
+        counter = 0
+        # i = number of albums  divided by 4 +1  times 2 because of album title
+        for i in range(4):
+            for j in range(4):
+
+                albumCover2 = QPushButton()
+                albumCover2.setIcon(QIcon('../assets/cover.jpg'))
+                albumCover2.setIconSize(QSize(140, 140))
+                albumCover2.setMinimumHeight(140)
+                albumCover2.setMaximumHeight(140)
+                albumCover2.setStyleSheet('QPushButton {background-color: #ffffff;}')
+
+                title = QLabel('Album Name')
+                title.setAlignment(Qt.AlignHCenter)
+                title.setMaximumHeight(40)
+
+                subLayout = QVBoxLayout()
+                if(counter < num):
+                    subLayout.addWidget(albumCover2)
+                    subLayout.addWidget(title)
+                else:
+                    self.spaceItem = QSpacerItem(140, 140, QSizePolicy.Expanding)
+                    subLayout.addSpacerItem(self.spaceItem)
+
+                self.gridLayout.addLayout(subLayout, i, j)
+                counter = counter +1
+
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)
