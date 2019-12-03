@@ -28,6 +28,25 @@ class Database(TinyDB, Query):
     def get_all(self):
         return self.database.all()
 
+    def get_path(self, name, album, artist):
+        query = Query()
+
+        if name == '':
+            name = None
+        if album == '':
+            album = None
+        if artist == '':
+            artist = None
+
+        print(name)
+        print(self.search_by_name('Aporia (feat. Aleksandra Djelmash)'))
+        result = self.database.search(query.name.search(name)
+                & query.album.search(album) & query.artist.search(artist))
+        if result[0] != '':
+            return (result[0])['path']
+        else:
+            return None
+
     # deletes all item matching name
     def delete_by_name(self, name):
         query = Query()
@@ -39,12 +58,13 @@ class Database(TinyDB, Query):
 
 
 class Song:
-    def __init__(self, path, name, artist, album, year): #TODO - add track number
+    def __init__(self, path, name, artist, album, year, time): #TODO - add track number
         self.path = path
         self.name = name
         self.artist = artist
         self.album = album
         self.year = year
+        self.time = time
         self.picture = None
 
     def update_name(self, name):
@@ -61,6 +81,9 @@ class Song:
 
     def update_album(self, album):
         self.album = album
+
+    def update_time(self, time):
+        self.time = time
 
     # converts song to json so it can be stored into the database
     def to_json(self):

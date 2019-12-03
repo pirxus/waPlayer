@@ -2,12 +2,11 @@
 from database import Database, Song
 from view import View
 
-import eyed3
-import threading
+import eyed3, json, threading
 
 from PyQt5.QtCore import QUrl, QDirIterator, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 
@@ -21,6 +20,7 @@ class Controller(QWidget):
         self.database = Database()
         self.setupView()
         self.setupPlayer()
+        self.populateLibrary()
 
         self.playerState = -1 # 0 - stopped, 1 - playing, 2 - paused
 
@@ -34,9 +34,13 @@ class Controller(QWidget):
         self.view.pushButtonPrev.clicked.connect(self.prevButtonPressed)
         self.view.pushButtonNext.clicked.connect(self.nextButtonPressed)
         self.view.pushButtonShuffle.clicked.connect(self.playlist.shuffle)
+        self.view.pushButtonAddToPlaylist.clicked.connect(self.addToPlaylistPressed)
 
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
+
+        self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
+
 
 
     # This method sets up the signals for the player class
@@ -60,8 +64,6 @@ class Controller(QWidget):
             self.player.play()
             self.playerState = 1
 
-            self.view.listAllSongs.addItem(url.fileName())
-
     def openFiles(self):
         if self.playlist.mediaCount() != 0:
             self.folderIterator()
@@ -72,7 +74,7 @@ class Controller(QWidget):
             self.player.play()
             self.playerState = 1
     
-        self.view.listAllSongs.sortItems()
+        self.view.tableAllSongs.sortItems()
         self.view.pushButtonPlay.setIcon(
                 QIcon('../assets/icons/actions/media-playback-pause.png'))
 
@@ -87,7 +89,7 @@ class Controller(QWidget):
                     if fInfo.suffix() in ('mp3', 'ogg', 'wav', 'm4a'):
                         url = QUrl.fromLocalFile(it.filePath())
                         self.playlist.addMedia(QMediaContent(url))
-                        self.view.listAllSongs.addItem(url.fileName())
+                        self.view.tableAllSongs.addItem(url.fileName())
 
                 it.next()
             if it.fileInfo().isDir() == False and it.filePath() != '.':
@@ -95,13 +97,29 @@ class Controller(QWidget):
                 if fInfo.suffix() in ('mp3', 'ogg', 'wav', 'm4a'):
                     url = QUrl.fromLocalFile(it.filePath())
                     self.playlist.addMedia(QMediaContent(url))
-                    self.view.listAllSongs.addItem(url.fileName())
+                    self.view.tableAllSongs.addItem(url.fileName())
 
     def importLibrary(self):
         self.database.db_purge()
         folder = QFileDialog.getExistingDirectory(self, 'Open Music Folder', '~/')
         thread = threading.Thread(target = self.importRecursiveIterator, args = (folder, ), daemon = True)
         thread.start()
+        thread.join()
+        self.populateLibrary()
+
+    def populateLibrary(self):
+        self.view.tableAllSongs.clearContents()
+        dataList = self.database.get_all()
+        if dataList:
+            i = 0
+            for item in dataList: #populate the all songs tab
+                self.view.tableAllSongs.insertRow(i)
+                self.view.tableAllSongs.setItem(i, 0, QTableWidgetItem(item["name"]))
+                self.view.tableAllSongs.setItem(i, 1,
+                        QTableWidgetItem(str(hhmmss(int(str(int(item["time"])) + '000')))))
+                self.view.tableAllSongs.setItem(i, 2, QTableWidgetItem(item["album"]))
+                self.view.tableAllSongs.setItem(i, 3, QTableWidgetItem(item["artist"]))
+                i += 1
 
     def importRecursiveIterator(self, folder):
         if folder!= None:
@@ -114,8 +132,9 @@ class Controller(QWidget):
                     if fInfo.suffix() in ('mp3'):
                         url = it.filePath()
                         af = eyed3.load(url) # audiofile
-                        song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate())
+                        song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate(), af.info.time_secs)
                         self.database.insert_song(song)
+
                 elif it.fileInfo().isDir() == True and it.fileName() != '..' and it.fileName() != '.':
                     self.importRecursiveIterator(it.filePath())
                 it.next()
@@ -124,10 +143,11 @@ class Controller(QWidget):
                 if fInfo.suffix() in ('mp3'):
                     url = it.filePath()
                     af = eyed3.load(url) # audiofile
-                    song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate())
+                    song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate(), af.info.time_secs)
                     self.database.insert_song(song)
             elif it.fileInfo().isDir() == True and it.fileName() != '..' and it.fileName() != '.':
                 self.importRecursiveIterator(it.filePath())
+
 
     def playButtonPressed(self):
         if self.playerState == -1:
@@ -200,6 +220,26 @@ class Controller(QWidget):
 
     def changeVolume(self, value):
         self.player.setVolume(value)
+
+    def addToPlaylistPressed(self):
+        pass
+    
+    def songSelectedFromAllSongs(self, item):
+        row = self.view.tableAllSongs.currentRow() 
+        name = self.view.tableAllSongs.item(row, 0).text()
+        album = self.view.tableAllSongs.item(row, 2).text()
+        artist = self.view.tableAllSongs.item(row, 3).text()
+        print('Now playing: ' + name + ' by ' + artist)
+        path = self.database.get_path(name, album, artist) #get path from database
+
+        if path != None:
+            url = QUrl.fromLocalFile(path)
+            self.playlist.clear()
+            self.playlist.addMedia(QMediaContent(url))
+            self.view.pushButtonPlay.setIcon(
+                QIcon('../assets/icons/actions/media-playback-pause.png'))
+            self.player.play()
+            self.playerState = 1
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)
