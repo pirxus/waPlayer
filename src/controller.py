@@ -8,7 +8,7 @@ from clickable_label import QLabelClickable
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 
@@ -357,13 +357,16 @@ class Controller(QWidget):
                 #albumCover.setMaximumHeight(138)
                 #albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
 
-                albumCover = QLabelClickable()
+                name = 'FUCK'
+                if counter > 2:
+                    name = 'THIS IS SOOOOO FUCKED'
+
+                albumCover = QLabelClickable(name)
                 albumCover.setScaledContents(True)
                 albumCover.setPixmap(QPixmap('../assets/cover.jpg').scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
                 albumCover.clicked.connect(self.labelClicked)
 
-
-                title = QLabel('Album Name')
+                title = QLabel(name)
                 title.setAlignment(Qt.AlignHCenter)
                 title.setMaximumHeight(20)
 
@@ -383,12 +386,8 @@ class Controller(QWidget):
                 self.gridLayout.addLayout(subLayout, i, j)
                 counter = counter +1
 
-        a = self.gridLayout.itemAt(1).itemAt(1).widget().text()
-        print(a)
-
-    def labelClicked(self):
-        #print('fheuiawq')
-        pass
+    def labelClicked(self, label):
+        print(label.name)
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)
