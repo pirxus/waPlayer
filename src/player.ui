@@ -16,6 +16,18 @@
     <verstretch>10</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>550</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>966</width>
+    <height>550</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Wiggly Air Player</string>
   </property>
@@ -86,7 +98,7 @@ QLabelClickable:mousePressEvent{
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideMiddle</enum>
@@ -192,6 +204,9 @@ QLabelClickable:mousePressEvent{
         <height>401</height>
        </rect>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -219,6 +234,9 @@ QLabelClickable:mousePressEvent{
         <width>601</width>
         <height>391</height>
        </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>

@@ -379,10 +379,10 @@ class Controller(QWidget):
                 counter = counter +1
 
         a = self.gridLayout.itemAt(1)
-        print(a.itemAt(1))
 
     def labelClicked(self):
-        print('fheuiawq')
+        #print('fheuiawq')
+        pass
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)
