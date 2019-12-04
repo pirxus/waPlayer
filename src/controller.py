@@ -3,6 +3,7 @@ from database import Database, Song
 from view import View
 
 import eyed3, json, threading
+from clickable_label import QLabelClickable
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt
@@ -43,6 +44,7 @@ class Controller(QWidget):
 
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
+        self.createAlbumGrid()
 
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
@@ -57,6 +59,8 @@ class Controller(QWidget):
         self.player.durationChanged.connect(self.updateDuration)
         self.player.positionChanged.connect(self.updateSongProgress)
         self.player.stateChanged.connect(self.updatePlayerState)
+
+        self.player.metaDataChanged.connect(self.metaDataChanged)
 
 
     def openFile(self):
@@ -220,7 +224,7 @@ class Controller(QWidget):
 
     def updatePlayerState(self, state):
         if state == QMediaPlayer.StoppedState:
-            self.playerState = 0;
+            self.playerState = 0
             self.view.pushButtonPlay.setIcon(
                 QIcon('../assets/icons/actions/gtk-media-play-ltr.png'))
             #self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
@@ -329,6 +333,61 @@ class Controller(QWidget):
         allSongsTable = AllSongsMenuHandler(parent=self)
         allSongsTable.rightClick()
 
+    def createAlbumGrid(self):
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setStyleSheet('QWidget {background-color: #ffffff;}')
+
+        self.gridLayout = QGridLayout(self.scrollAreaWidgetContents)
+
+        self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout.setColumnStretch(1,4)
+
+        num = 11
+        counter = 0
+        # i = number of albums  divided by 4 +1  times 2 because of album title
+        for i in range(num//4 + 1):
+            for j in range(4):
+                """
+                albumCover = QPushButton()
+                albumCover.setIcon(QIcon('../assets/cover.jpg'))
+                albumCover.setIconSize(QSize(138, 138))
+                albumCover.setMinimumHeight(138)
+                albumCover.setMaximumHeight(138)
+                albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
+                """
+
+                albumCover = QLabelClickable()
+                albumCover.setPixmap(QPixmap('../assets/cover.jpg').scaled(145, 145, Qt.KeepAspectRatio, Qt.FastTransformation))
+                albumCover.clicked.connect(self.labelClicked)
+
+
+                title = QLabel('Album Name')
+                title.setAlignment(Qt.AlignHCenter)
+                title.setMaximumHeight(40)
+
+                subLayout = QVBoxLayout()
+                if(counter < num):
+                    subLayout.addWidget(albumCover)
+                    subLayout.addWidget(title)
+                else:
+                    self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Expanding)
+                    subLayout.addSpacerItem(self.spaceItem)
+
+                self.gridLayout.addLayout(subLayout, i, j)
+                counter = counter +1
+
+        a = self.gridLayout.itemAt(1)
+        print(a.itemAt(1))
+
+    def labelClicked(self):
+        print('fheuiawq')
+
+def hhmmss(ms):
+    h, r = divmod(ms, 3600000)
+    m, r = divmod(r, 60000)
+    s, _ = divmod(r, 1000)
+    return ("%d:%02d:%02d" % (h,m,s)) if h else ("%d:%02d" % (m,s))
+
 class AllSongsMenuHandler:
     def __init__(self, parent=None):
             self.parent = parent
@@ -362,9 +421,3 @@ class AllSongsMenuHandler:
 
         elif action == addToUpNext: # add to up next
             self.parent.addToUpNext()
-
-def hhmmss(ms):
-    h, r = divmod(ms, 3600000)
-    m, r = divmod(r, 60000)
-    s, _ = divmod(r, 1000)
-    return ("%d:%02d:%02d" % (h,m,s)) if h else ("%d:%02d" % (m,s))

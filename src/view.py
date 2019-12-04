@@ -23,3 +23,5 @@ class View(QtWidgets.QMainWindow):
 
     #    action = self.view.contextMenuSongSelection.exec_(self.view.mapToGlobal(event.pos()))
 
+
+
