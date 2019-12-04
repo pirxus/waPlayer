@@ -14,14 +14,21 @@ class Database(TinyDB, Query):
 
     def search_by_name(self, name):
         query = Query()
+        name = name.replace('(', '\(')
+        name = name.replace(')', '\)')
+        name = name.replace('+', '\+')
         return self.database.search(query.name.search(name))
 
     def search_by_artist(self, artist):
         query = Query()
+        artist = artist.replace('(', '\(')
+        artist = artist.replace(')', '\)')
         return self.database.search(query.artist.search(artist))
 
     def search_by_album(self, name):
         query = Query()
+        album = album.replace('(', '\(')
+        album = album.replace(')', '\)')
         return self.database.search(query.name.search(name))
 
     # returns json list of all song in database
@@ -31,17 +38,20 @@ class Database(TinyDB, Query):
     def get_path(self, name, album, artist):
         query = Query()
 
-        if name == '':
-            name = None
+        name = name.replace('(', '\(')
+        name = name.replace(')', '\)')
+        name = name.replace('+', '\+')
+        album = album.replace('(', '\(')
+        album = album.replace(')', '\)')
+        artist = artist.replace('(', '\(')
+        artist = artist.replace(')', '\)')
+        
         if album == '':
-            album = None
-        if artist == '':
-            artist = None
+            result = self.database.search(query.name.search(name) & query.artist.search(artist))
+        else:   
+            result = self.database.search(query.name.search(name)
+                    & query.album.search(album) & query.artist.search(artist))
 
-        print(name)
-        print(self.search_by_name('Aporia (feat. Aleksandra Djelmash)'))
-        result = self.database.search(query.name.search(name)
-                & query.album.search(album) & query.artist.search(artist))
         if result[0] != '':
             return (result[0])['path']
         else:
@@ -50,6 +60,8 @@ class Database(TinyDB, Query):
     # deletes all item matching name
     def delete_by_name(self, name):
         query = Query()
+        name = name.replace('(', '\(')
+        name = name.replace(')', '\)')
         self.database.remove(query.name == name)
     
     # clears the database

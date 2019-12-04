@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>986</width>
+    <width>959</width>
     <height>550</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Music Player</string>
+   <string>Wiggly Air Player</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QTabWidget
@@ -37,7 +37,7 @@ QPushButton:pressed {
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="tabLibrary">
     <property name="geometry">
      <rect>
       <x>310</x>
@@ -89,6 +89,9 @@ QPushButton:pressed {
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
@@ -124,6 +127,9 @@ QPushButton:pressed {
         </attribute>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>150</number>
+        </attribute>
+        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+         <bool>true</bool>
         </attribute>
         <attribute name="horizontalHeaderStretchLastSection">
          <bool>true</bool>
@@ -305,7 +311,7 @@ QPushButton:pressed {
       </size>
      </property>
     </widget>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="labelPlayerAlbumArt">
      <property name="geometry">
       <rect>
        <x>41</x>
@@ -498,7 +504,7 @@ border-color:rgb(46, 52, 54);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>986</width>
+     <width>959</width>
      <height>29</height>
     </rect>
    </property>
@@ -514,6 +520,12 @@ border-color:rgb(46, 52, 54);</string>
     <property name="title">
      <string>Song</string>
     </property>
+    <addaction name="actionPlay_selected"/>
+    <addaction name="separator"/>
+    <addaction name="actionPlay_next"/>
+    <addaction name="actionAdd_to_up_next"/>
+    <addaction name="separator"/>
+    <addaction name="actionClear_up_next"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSong"/>
@@ -539,8 +551,31 @@ border-color:rgb(46, 52, 54);</string>
    <property name="text">
     <string>Open Files...</string>
    </property>
+  </action>
+  <action name="actionPlay_selected">
+   <property name="text">
+    <string>Play selected</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionPlay_next">
+   <property name="text">
+    <string>Play next</string>
+   </property>
+  </action>
+  <action name="actionAdd_to_up_next">
+   <property name="text">
+    <string>Add to up next</string>
+   </property>
+  </action>
+  <action name="actionClear_up_next">
+   <property name="text">
+    <string>Clear up next</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>

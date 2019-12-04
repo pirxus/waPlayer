@@ -4,9 +4,10 @@ from view import View
 
 import eyed3, json, threading
 
+from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 
@@ -29,6 +30,10 @@ class Controller(QWidget):
         self.view.actionOpen_File.triggered.connect(self.openFile)
         self.view.actionOpen_Files.triggered.connect(self.openFiles)
         self.view.actionImport_Library.triggered.connect(self.importLibrary)
+        self.view.actionPlay_selected.triggered.connect(self.playLibraryItem)
+        self.view.actionPlay_next.triggered.connect(self.playNext)
+        self.view.actionAdd_to_up_next.triggered.connect(self.addToUpNext)
+        self.view.actionClear_up_next.triggered.connect(self.clearQueue)
 
         self.view.pushButtonPlay.clicked.connect(self.playButtonPressed)
         self.view.pushButtonPrev.clicked.connect(self.prevButtonPressed)
@@ -40,6 +45,7 @@ class Controller(QWidget):
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
 
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
+        self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
 
 
 
@@ -185,9 +191,9 @@ class Controller(QWidget):
             songName = self.player.metaData(QMediaMetaData.Title)
 
             if coverArt == None:
-                self.view.label.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
+                self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
             else:
-                self.view.label.setPixmap(QPixmap.fromImage(coverArt))
+                self.view.labelPlayerAlbumArt.setPixmap(QPixmap.fromImage(coverArt))
 
             if songName != None:
                 self.view.labelPlayerSongName.setText(songName)
@@ -217,7 +223,7 @@ class Controller(QWidget):
             self.playerState = 0;
             self.view.pushButtonPlay.setIcon(
                 QIcon('../assets/icons/actions/gtk-media-play-ltr.png'))
-
+            #self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
     def changeVolume(self, value):
         self.player.setVolume(value)
 
@@ -240,6 +246,122 @@ class Controller(QWidget):
                 QIcon('../assets/icons/actions/media-playback-pause.png'))
             self.player.play()
             self.playerState = 1
+
+    def addToUpNext(self):
+        tabIndex = self.view.tabLibrary.currentIndex()
+        if tabIndex == 0: # all songs tab
+            items = self.view.tableAllSongs.selectedItems()
+            for i in range(len(items) // 4):
+                name = items[4 * i + 0].text()
+                album = items[4 * i + 2].text()
+                artist = items[4 * i + 3].text()
+                print('Adding to up next: ' + name + ' by ' + artist)
+                path = self.database.get_path(name, album, artist) #get path from database
+
+                if path != None:
+                    url = QUrl.fromLocalFile(path)
+                    if self.playlist.mediaCount() == 0:
+                        self.playlist.addMedia(QMediaContent(url))
+                        self.view.pushButtonPlay.setIcon(
+                            QIcon('../assets/icons/actions/media-playback-pause.png'))
+                        self.player.play()
+                        self.playerState = 1
+                    else:
+                        self.playlist.addMedia(QMediaContent(url))
+
+    def playNext(self):
+        tabIndex = self.view.tabLibrary.currentIndex()
+        if tabIndex == 0: # all songs tab
+            items = self.view.tableAllSongs.selectedItems()
+            for i in range(len(items) // 4):
+                name = items[4 * i + 0].text()
+                album = items[4 * i + 2].text()
+                artist = items[4 * i + 3].text()
+                print('Playing next: ' + name + ' by ' + artist)
+                path = self.database.get_path(name, album, artist) #get path from database
+
+                if path != None:
+                    url = QUrl.fromLocalFile(path)
+                    if self.playlist.mediaCount() == 0:
+                        self.playlist.insertMedia(self.playlist.nextIndex() + i,
+                                QMediaContent(url))
+                        self.view.pushButtonPlay.setIcon(
+                            QIcon('../assets/icons/actions/media-playback-pause.png'))
+                        self.player.play()
+                        self.playerState = 1
+                    else:
+                        self.playlist.insertMedia(self.playlist.nextIndex() + i,
+                                QMediaContent(url))
+    def playLibraryItem(self):
+        self.playlist.removeMedia(self.playlist.nextIndex(), #clear the queue
+            self.playlist.mediaCount() - 1)
+        mediaCount = self.playlist.mediaCount()
+
+        tabIndex = self.view.tabLibrary.currentIndex()
+        if tabIndex == 0: # all songs tab
+            items = self.view.tableAllSongs.selectedItems()
+
+            for i in range(len(items) // 4):
+                name = items[4 * i + 0].text()
+                album = items[4 * i + 2].text()
+                artist = items[4 * i + 3].text()
+                print('Now playing: ' + name + ' by ' + artist)
+                path = self.database.get_path(name, album, artist) #get path from database
+
+                if path != None:
+                    url = QUrl.fromLocalFile(path)
+                    self.playlist.addMedia(QMediaContent(url))
+
+        if mediaCount != 0: # jump to next song 
+            self.playlist.next()
+        self.player.play()
+        self.view.pushButtonPlay.setIcon(
+            QIcon('../assets/icons/actions/media-playback-pause.png'))
+        self.playerState = 1
+
+    def clearQueue(self):
+        if self.playlist.currentIndex() < self.playlist.mediaCount() - 1:
+            self.playlist.removeMedia(
+                    self.playlist.currentIndex() + 1,
+                    self.playlist.mediaCount() - 1)
+
+    def allSongsMenu(self, pos):
+        allSongsTable = AllSongsMenuHandler(parent=self)
+        allSongsTable.rightClick()
+
+class AllSongsMenuHandler:
+    def __init__(self, parent=None):
+            self.parent = parent
+
+    def rightClick(self):
+        top_menu = QMenu(self.parent)
+
+        menu = top_menu.addMenu("Menu")
+        play = menu.addAction("Play")
+        menu.addSeparator()
+
+        playNext = menu.addAction("Play next")
+        addToUpNext = menu.addAction("Add to up next")
+        menu.addSeparator()
+
+        addToPlaylist = menu.addAction("Add to playlist...")
+        config = menu.addMenu("Configuration ...")
+
+        _load = config.addAction("&Load ...")
+
+        config.addSeparator()
+        config1 = config.addAction("Config1")
+
+        action = menu.exec_(QtGui.QCursor.pos())
+
+        if action == play: # play
+            self.parent.playLibraryItem()
+
+        elif action == playNext: # play next
+            self.parent.playNext()
+
+        elif action == addToUpNext: # add to up next
+            self.parent.addToUpNext()
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)
