@@ -8,7 +8,7 @@ from clickable_label import QLabelClickable
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 
@@ -342,7 +342,7 @@ class Controller(QWidget):
         self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout.setColumnStretch(1,4)
 
-        num = 11
+        num =12 
         counter = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
         for i in range(num//4 + 1):
@@ -357,7 +357,8 @@ class Controller(QWidget):
                 """
 
                 albumCover = QLabelClickable()
-                albumCover.setPixmap(QPixmap('../assets/cover.jpg').scaled(145, 145, Qt.KeepAspectRatio, Qt.FastTransformation))
+                albumCover.setScaledContents(True)
+                albumCover.setPixmap(QPixmap('../assets/cover.jpg').scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
                 albumCover.clicked.connect(self.labelClicked)
 
 
@@ -370,8 +371,9 @@ class Controller(QWidget):
                     subLayout.addWidget(albumCover)
                     subLayout.addWidget(title)
                 else:
-                    self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Expanding)
+                    self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Fixed)
                     subLayout.addSpacerItem(self.spaceItem)
+                    pass
 
                 self.gridLayout.addLayout(subLayout, i, j)
                 counter = counter +1
