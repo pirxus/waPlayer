@@ -369,6 +369,7 @@ class Controller(QWidget):
                 title = QLabel(name)
                 title.setAlignment(Qt.AlignHCenter)
                 title.setMaximumHeight(20)
+                title.setMaximumWidth(141)
 
                 subLayout = QVBoxLayout()
                 if(counter < num):
