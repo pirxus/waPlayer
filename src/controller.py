@@ -6,7 +6,7 @@ import eyed3, json, threading
 from clickable_label import QLabelClickable
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import QUrl, QDirIterator, Qt
+from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
@@ -340,21 +340,22 @@ class Controller(QWidget):
         self.gridLayout = QGridLayout(self.scrollAreaWidgetContents)
 
         self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
-        self.gridLayout.setColumnStretch(1,4)
+        self.gridLayout.setColumnStretch(0,1)
+        self.gridLayout.setColumnStretch(1,1)
+        self.gridLayout.setColumnStretch(2,1)
+        self.gridLayout.setColumnStretch(3,1)
 
-        num =12 
+        num = 4
         counter = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
-        for i in range(num//4 + 1):
+        for i in range(num//4 + 2):
             for j in range(4):
-                """
-                albumCover = QPushButton()
-                albumCover.setIcon(QIcon('../assets/cover.jpg'))
-                albumCover.setIconSize(QSize(138, 138))
-                albumCover.setMinimumHeight(138)
-                albumCover.setMaximumHeight(138)
-                albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
-                """
+                #albumCover = QPushButton()
+                #albumCover.setIcon(QIcon('../assets/cover.jpg'))
+                #albumCover.setIconSize(QSize(128, 128))
+                #albumCover.setMinimumHeight(138)
+                #albumCover.setMaximumHeight(138)
+                #albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
 
                 albumCover = QLabelClickable()
                 albumCover.setScaledContents(True)
@@ -364,21 +365,26 @@ class Controller(QWidget):
 
                 title = QLabel('Album Name')
                 title.setAlignment(Qt.AlignHCenter)
-                title.setMaximumHeight(40)
+                title.setMaximumHeight(20)
 
                 subLayout = QVBoxLayout()
                 if(counter < num):
                     subLayout.addWidget(albumCover)
                     subLayout.addWidget(title)
                 else:
+                    title = QLabel('')
+                    title.setAlignment(Qt.AlignHCenter)
+                    title.setMaximumHeight(20)
                     self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Fixed)
                     subLayout.addSpacerItem(self.spaceItem)
+                    subLayout.addWidget(title)
                     pass
 
                 self.gridLayout.addLayout(subLayout, i, j)
                 counter = counter +1
 
-        a = self.gridLayout.itemAt(1)
+        a = self.gridLayout.itemAt(1).itemAt(1).widget().text()
+        print(a)
 
     def labelClicked(self):
         #print('fheuiawq')

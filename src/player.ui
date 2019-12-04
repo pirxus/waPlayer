@@ -98,7 +98,7 @@ QLabelClickable:mousePressEvent{
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideMiddle</enum>
@@ -206,6 +206,11 @@ QLabelClickable:mousePressEvent{
       </property>
       <property name="focusPolicy">
        <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+border-radius: 0 px;
+}</string>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
