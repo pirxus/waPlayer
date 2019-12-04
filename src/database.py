@@ -25,11 +25,11 @@ class Database(TinyDB, Query):
         artist = artist.replace(')', '\)')
         return self.database.search(query.artist.search(artist))
 
-    def search_by_album(self, name):
+    def search_by_album(self, album):
         query = Query()
         album = album.replace('(', '\(')
         album = album.replace(')', '\)')
-        return self.database.search(query.name.search(name))
+        return self.database.search(query.album.search(album))
 
     # returns json list of all song in database
     def get_all(self):
