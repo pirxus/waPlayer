@@ -1,5 +1,6 @@
 from database import Database
 from view import View
+from clickable_label import QLabelClickable
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize, QRect
 from PyQt5.QtGui import QPixmap, QIcon, QPalette
 
@@ -163,18 +164,24 @@ class Controller(QWidget):
         self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout.setColumnStretch(1,4)
 
-        num = 7
+        num = 11
         counter = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
-        for i in range(4):
+        for i in range(num//4 + 1):
             for j in range(4):
-
+                """
                 albumCover = QPushButton()
                 albumCover.setIcon(QIcon('../assets/cover.jpg'))
                 albumCover.setIconSize(QSize(138, 138))
                 albumCover.setMinimumHeight(138)
                 albumCover.setMaximumHeight(138)
                 albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
+                """
+
+                albumCover = QLabelClickable()
+                albumCover.setPixmap(QPixmap('../assets/cover.jpg').scaled(145, 145, Qt.KeepAspectRatio, Qt.FastTransformation))
+                albumCover.clicked.connect(self.labelClicked)
+
 
                 title = QLabel('Album Name')
                 title.setAlignment(Qt.AlignHCenter)
@@ -191,6 +198,11 @@ class Controller(QWidget):
                 self.gridLayout.addLayout(subLayout, i, j)
                 counter = counter +1
 
+        a = self.gridLayout.itemAt(1)
+        print(a.itemAt(1))
+
+    def labelClicked(self):
+        print('fheuiawq')
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)

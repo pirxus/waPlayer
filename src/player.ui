@@ -40,7 +40,16 @@ QPushButton {
 QPushButton:pressed {
     background-color: rgb(117, 80, 123);
     border-style: inset;
-}</string>
+}
+QLabelClickable{
+	border:  3px solid black;
+}
+QLabelClickable:mousePressEvent{
+    border: 10px solid black;
+    border-color: rgb(204, 0, 0);
+    border-style: inset;
+}
+</string>
   </property>
   <property name="iconSize">
    <size>
@@ -80,8 +89,7 @@ QPushButton:pressed {
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true">
-</string>
+     <string notr="true"/>
     </property>
     <property name="currentIndex">
      <number>1</number>

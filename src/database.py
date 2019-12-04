@@ -6,7 +6,7 @@ import json
 
 class Database(TinyDB, Query):
     def __init__(self):
-        self.database = TinyDB('db_files/database.json')
+        self.database = TinyDB('../db_files/database.json')
 
     # inserts new song into the database
     def insert_song(self, song):
