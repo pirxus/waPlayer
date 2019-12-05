@@ -12,6 +12,8 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
+from src.album_song_item import AlbumSongItem
+
 
 class Controller(QWidget):
 
@@ -348,9 +350,8 @@ class Controller(QWidget):
         self.gridLayout.setColumnStretch(3, 1)
 
 
-
-
         alb = self.database.get_all_albums()
+        alb.sort()
 
 
         num = len(alb)
@@ -358,22 +359,15 @@ class Controller(QWidget):
         # i = number of albums  divided by 4 +1  times 2 because of album title
         for i in range(num//4 + 2):
             for j in range(4):
-                #albumCover = QPushButton()
-                #albumCover.setIcon(QIcon('../assets/cover.jpg'))
-                #albumCover.setIconSize(QSize(128, 128))
-                #albumCover.setMinimumHeight(138)
-                #albumCover.setMaximumHeight(138)
-                #albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
-
                 if (counter < num):
                     name = alb[counter]
                 else:
-                    name = 'gjhskd'
+                    name = ''
 
-                albumCover = QLabelClickable(name)
-                albumCover.setScaledContents(True)
-                albumCover.setPixmap(QPixmap('../assets/cover.jpg').scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
-                albumCover.clicked.connect(self.labelClicked)
+                albumCoverGrid = QLabelClickable(name)
+                albumCoverGrid.setScaledContents(True)
+                albumCoverGrid.setPixmap(QPixmap('../assets/cover.jpg').scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
+                albumCoverGrid.clicked.connect(self.labelClicked)
 
                 title = QLabel(name)
                 title.setAlignment(Qt.AlignHCenter)
@@ -382,7 +376,7 @@ class Controller(QWidget):
 
                 subLayout = QVBoxLayout()
                 if(counter < num):
-                    subLayout.addWidget(albumCover)
+                    subLayout.addWidget(albumCoverGrid)
                     subLayout.addWidget(title)
                 else:
                     title = QLabel('')
@@ -397,16 +391,29 @@ class Controller(QWidget):
                 counter = counter +1
 
     def labelClicked(self, label):
-        print(label.name)
-        songs = self.database.search_by_album(label.name)
-        for song in songs:
-            print(song['name'] + ':' + song['path'])
-        self.view.createAlbumView()
+
+        self.album_songs = self.database.search_by_album(label.name)
+        self.view.createAlbumView(self.album_songs)
         self.view.albumsButton.clicked.connect(self.goBack)
+        self.view.albumCover.clicked.connect(self.playAlbum)
+
+        if self.album_songs != []:
+            counter = 0
+            for song in self.album_songs:
+                item = AlbumSongItem(song['path'], song['artist'], song['album'], song['name'], song['time'])
+                item.setText(song['name'])
+                self.view.albumSongs.insertRow(counter)
+                self.view.albumSongs.setRowHeight(10, 10)
+                self.view.albumSongs.setItem(counter, 0, item)
+                self.view.albumSongs.setItem(counter, 1, QTableWidgetItem(str(hhmmss(int(str(int(song["time"])) + '000')))))
+                counter += 1
+
 
     def goBack(self):
         sip.delete(self.view.albumView)
 
+    def playAlbum(self):
+        print(self.album_songs)
 
 
 
