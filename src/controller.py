@@ -1,4 +1,3 @@
-
 from database import Database, Song
 from view import View
 
@@ -46,7 +45,11 @@ class Controller(QWidget):
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
         self.createAlbumGrid()
 
+        self.view.listArtistNames.itemClicked.connect(self.artistSelected)
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
+        self.view.tableAlbumContent.itemDoubleClicked.connect(self.songSelectedFromArtist)
+        # has icon?
+
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
 
 
@@ -119,7 +122,9 @@ class Controller(QWidget):
 
     def populateLibrary(self):
         self.view.tableAllSongs.clearContents()
+        self.view.listArtistNames.clear()
         dataList = self.database.get_all()
+        artistList = self.database.get_artists()
         if dataList:
             i = 0
             for item in dataList: #populate the all songs tab
@@ -130,6 +135,13 @@ class Controller(QWidget):
                 self.view.tableAllSongs.setItem(i, 2, QTableWidgetItem(item["album"]))
                 self.view.tableAllSongs.setItem(i, 3, QTableWidgetItem(item["artist"]))
                 i += 1
+
+
+        if artistList:
+            for artist in artistList: #populate the artist list
+                self.view.listArtistNames.addItem(artist)
+            self.view.listArtistNames.sortItems()
+            self.loadArtistAlbums(artistList[0])
 
     def importRecursiveIterator(self, folder):
         if folder!= None:
@@ -142,7 +154,7 @@ class Controller(QWidget):
                     if fInfo.suffix() in ('mp3'):
                         url = it.filePath()
                         af = eyed3.load(url) # audiofile
-                        song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate(), af.info.time_secs)
+                        song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate(), af.info.time_secs, af.tag.track_num)
                         self.database.insert_song(song)
 
                 elif it.fileInfo().isDir() == True and it.fileName() != '..' and it.fileName() != '.':
@@ -153,8 +165,9 @@ class Controller(QWidget):
                 if fInfo.suffix() in ('mp3'):
                     url = it.filePath()
                     af = eyed3.load(url) # audiofile
-                    song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate(), af.info.time_secs)
+                    song = Song(url, af.tag.title, af.tag.artist, af.tag.album, af.tag.getBestDate(), af.info.time_secs, af.tag.track_num)
                     self.database.insert_song(song)
+
             elif it.fileInfo().isDir() == True and it.fileName() != '..' and it.fileName() != '.':
                 self.importRecursiveIterator(it.filePath())
 
@@ -240,7 +253,7 @@ class Controller(QWidget):
         album = self.view.tableAllSongs.item(row, 2).text()
         artist = self.view.tableAllSongs.item(row, 3).text()
         print('Now playing: ' + name + ' by ' + artist)
-        path = self.database.get_path(name, album, artist) #get path from database
+        path = self.database.get_path_track_number(name, album, artist)[0] #get path from database
 
         if path != None:
             url = QUrl.fromLocalFile(path)
@@ -251,6 +264,13 @@ class Controller(QWidget):
             self.player.play()
             self.playerState = 1
 
+    def songSelectedFromArtist(self, item):
+        # check if the item is the album header...
+        #FIXME, TODO
+        # maybe create new table item class????
+        pass
+
+
     def addToUpNext(self):
         tabIndex = self.view.tabLibrary.currentIndex()
         if tabIndex == 0: # all songs tab
@@ -260,7 +280,7 @@ class Controller(QWidget):
                 album = items[4 * i + 2].text()
                 artist = items[4 * i + 3].text()
                 print('Adding to up next: ' + name + ' by ' + artist)
-                path = self.database.get_path(name, album, artist) #get path from database
+                path = self.database.get_path_track_number(name, album, artist) #get path from database
 
                 if path != None:
                     url = QUrl.fromLocalFile(path)
@@ -282,7 +302,7 @@ class Controller(QWidget):
                 album = items[4 * i + 2].text()
                 artist = items[4 * i + 3].text()
                 print('Playing next: ' + name + ' by ' + artist)
-                path = self.database.get_path(name, album, artist) #get path from database
+                path = self.database.get_path_track_number(name, album, artist) #get path from database
 
                 if path != None:
                     url = QUrl.fromLocalFile(path)
@@ -310,7 +330,7 @@ class Controller(QWidget):
                 album = items[4 * i + 2].text()
                 artist = items[4 * i + 3].text()
                 print('Now playing: ' + name + ' by ' + artist)
-                path = self.database.get_path(name, album, artist) #get path from database
+                path = self.database.get_path_track_number(name, album, artist)[0] #get path from database
 
                 if path != None:
                     url = QUrl.fromLocalFile(path)
@@ -363,7 +383,7 @@ class Controller(QWidget):
 
                 albumCover = QLabelClickable(name)
                 albumCover.setScaledContents(True)
-                albumCover.setPixmap(QPixmap('../assets/cover.jpg').scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
+                albumCover.setPixmap(QPixmap('../assets/stock_album_cover.jpg').scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
                 albumCover.clicked.connect(self.labelClicked)
 
                 title = QLabel(name)
@@ -389,6 +409,36 @@ class Controller(QWidget):
 
     def labelClicked(self, label):
         print(label.name)
+
+    def artistSelected(self, item):
+        self.loadArtistAlbums(item.text())
+
+    def loadArtistAlbums(self, artist):
+        albumList = self.database.get_albums_by_artist(artist)
+        for i in range(self.view.tableAlbumContent.rowCount()):
+            self.view.tableAlbumContent.removeRow(0)
+
+        if albumList != []:
+            i = 0
+            for album in albumList:
+                self.view.tableAlbumContent.insertRow(i)
+                songs = self.database.search_by_album(album)
+                if songs != []:
+
+                    item = QTableWidgetItem()
+                    item.setIcon(QIcon('../assets/stock_album_cover.jpg'))
+                    text = album + ' - ' + str(songs[0]['year']['_year'])
+                    item.setText(text)
+
+                    self.view.tableAlbumContent.setItem(i, 0, item)
+
+                    i += 1
+                    for song in songs:
+                        self.view.tableAlbumContent.insertRow(i)
+                        self.view.tableAlbumContent.setItem(i, 0, QTableWidgetItem(song['name']))
+                        self.view.tableAlbumContent.setItem(i, 1,
+                                QTableWidgetItem(str(hhmmss(int(str(int(song["time"])) + '000')))))
+                        i += 1
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)

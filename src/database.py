@@ -14,37 +14,31 @@ class Database(TinyDB, Query):
 
     def search_by_name(self, name):
         query = Query()
-        name = name.replace('(', '\(')
-        name = name.replace(')', '\)')
-        name = name.replace('+', '\+')
+        name = self.fix_str(name)
         return self.database.search(query.name.search(name))
 
     def search_by_artist(self, artist):
+        artist = self.fix_str(artist)
         query = Query()
-        artist = artist.replace('(', '\(')
-        artist = artist.replace(')', '\)')
         return self.database.search(query.artist.search(artist))
 
     def search_by_album(self, album):
+        if album == '':
+            return None
+        album = self.fix_str(album)
         query = Query()
-        album = album.replace('(', '\(')
-        album = album.replace(')', '\)')
         return self.database.search(query.album.search(album))
 
     # returns json list of all song in database
     def get_all(self):
         return self.database.all()
 
-    def get_path(self, name, album, artist):
+    def get_path_track_number(self, name, album, artist):
         query = Query()
 
-        name = name.replace('(', '\(')
-        name = name.replace(')', '\)')
-        name = name.replace('+', '\+')
-        album = album.replace('(', '\(')
-        album = album.replace(')', '\)')
-        artist = artist.replace('(', '\(')
-        artist = artist.replace(')', '\)')
+        name = self.fix_str(name)
+        album = self.fix_str(album)
+        artist = self.fix_str(artist)
         
         if album == '':
             result = self.database.search(query.name.search(name) & query.artist.search(artist))
@@ -52,16 +46,47 @@ class Database(TinyDB, Query):
             result = self.database.search(query.name.search(name)
                     & query.album.search(album) & query.artist.search(artist))
 
-        if result[0] != '':
-            return (result[0])['path']
-        else:
-            return None
+        if result:
+            if result[0] != '':
+                return (result[0])['path'], (result[0])['track_no']
+        return None, None
+
+    def fix_str(self, string):
+        string = string.replace('(', '\(')
+        string = string.replace(')', '\)')
+        string = string.replace('[', '\[')
+        string = string.replace(']', '\]')
+        string = string.replace('{', '\{')
+        string = string.replace('}', '\}')
+        string = string.replace('+', '\+')
+        return string
+
+    def get_artists(self):
+        artistList = []
+        query = Query()
+        search = self.database.search(query.artist.exists())
+        for entry in search:
+            name = entry['artist']
+            if name not in artistList:
+                artistList.append(name)
+
+        return artistList
+
+    def get_albums_by_artist(self, artist):
+        albumList = []
+        query = Query()
+        search = self.search_by_artist(artist)
+        for entry in search:
+            name = entry['album']
+            if name not in albumList:
+                albumList.append(name)
+
+        return albumList
 
     # deletes all item matching name
     def delete_by_name(self, name):
         query = Query()
-        name = name.replace('(', '\(')
-        name = name.replace(')', '\)')
+        name = self.fix_str(name)
         self.database.remove(query.name == name)
     
     # clears the database
@@ -70,13 +95,14 @@ class Database(TinyDB, Query):
 
 
 class Song:
-    def __init__(self, path, name, artist, album, year, time): #TODO - add track number
+    def __init__(self, path, name, artist, album, year, time, track_no):
         self.path = path
         self.name = name
         self.artist = artist
         self.album = album
         self.year = year
         self.time = time
+        self.track_no = track_no
         self.picture = None
 
     def update_name(self, name):
@@ -96,6 +122,9 @@ class Song:
 
     def update_time(self, time):
         self.time = time
+
+    def update_track_no(self, track_no):
+        self.track_no = track_no
 
     # converts song to json so it can be stored into the database
     def to_json(self):
