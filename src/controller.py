@@ -1,5 +1,6 @@
 
 from database import Database, Song
+from tinydb import Query
 from view import View
 
 import eyed3, json, threading
@@ -340,12 +341,18 @@ class Controller(QWidget):
         self.gridLayout = QGridLayout(self.scrollAreaWidgetContents)
 
         self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
-        self.gridLayout.setColumnStretch(0,1)
-        self.gridLayout.setColumnStretch(1,1)
-        self.gridLayout.setColumnStretch(2,1)
-        self.gridLayout.setColumnStretch(3,1)
+        self.gridLayout.setColumnStretch(0, 1)
+        self.gridLayout.setColumnStretch(1, 1)
+        self.gridLayout.setColumnStretch(2, 1)
+        self.gridLayout.setColumnStretch(3, 1)
 
-        num = 4
+
+
+
+        alb = self.database.get_all_albums()
+
+
+        num = len(alb)
         counter = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
         for i in range(num//4 + 2):
@@ -357,9 +364,10 @@ class Controller(QWidget):
                 #albumCover.setMaximumHeight(138)
                 #albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
 
-                name = 'FUCK'
-                if counter > 2:
-                    name = 'THIS IS SOOOOO FUCKED'
+                if (counter < num):
+                    name = alb[counter]
+                else:
+                    name = ''
 
                 albumCover = QLabelClickable(name)
                 albumCover.setScaledContents(True)
@@ -389,6 +397,12 @@ class Controller(QWidget):
 
     def labelClicked(self, label):
         print(label.name)
+        q = Query()
+        songs = self.database.search_by_album(label.name)
+        for song in songs:
+            print(songs['name'])
+
+
 
 def hhmmss(ms):
     h, r = divmod(ms, 3600000)
