@@ -29,7 +29,7 @@ class Database(TinyDB, Query):
         query = Query()
         album = album.replace('(', '\(')
         album = album.replace(')', '\)')
-        return self.database.search(query.albums.search(album))
+        return self.database.search(query.album.search(album))
 
     def get_album_songs(self):
         query = Query()
