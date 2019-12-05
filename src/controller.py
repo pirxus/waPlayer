@@ -3,6 +3,7 @@ from view import View
 
 import eyed3, json, threading
 from clickable_label import QLabelClickable
+from my_table_item import MyTableItem
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
@@ -51,6 +52,7 @@ class Controller(QWidget):
         # has icon?
 
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
+        self.view.tableAlbumContent.customContextMenuRequested.connect(self.artistTableMenu)
 
 
 
@@ -265,10 +267,15 @@ class Controller(QWidget):
             self.playerState = 1
 
     def songSelectedFromArtist(self, item):
-        # check if the item is the album header...
-        #FIXME, TODO
-        # maybe create new table item class????
-        pass
+        if item.itemType == 'song':
+            print('Now playing: ' + item.name + ' by ' + item.artist)
+            url = QUrl.fromLocalFile(item.path)
+            self.playlist.clear()
+            self.playlist.addMedia(QMediaContent(url))
+            self.view.pushButtonPlay.setIcon(
+                QIcon('../assets/icons/actions/media-playback-pause.png'))
+            self.player.play()
+            self.playerState = 1
 
 
     def addToUpNext(self):
@@ -284,6 +291,23 @@ class Controller(QWidget):
 
                 if path != None:
                     url = QUrl.fromLocalFile(path)
+                    if self.playlist.mediaCount() == 0:
+                        self.playlist.addMedia(QMediaContent(url))
+                        self.view.pushButtonPlay.setIcon(
+                            QIcon('../assets/icons/actions/media-playback-pause.png'))
+                        self.player.play()
+                        self.playerState = 1
+                    else:
+                        self.playlist.addMedia(QMediaContent(url))
+        elif tabIndex == 2: # artists tab
+
+            items = self.view.tableAlbumContent.selectedItems()
+            for i in range(len(items) // 2):
+                item = items[2 * i]
+                if item.itemType == 'song':
+                    print('Adding to up next: ' + item.name + ' by ' + item.artist)
+
+                    url = QUrl.fromLocalFile(item.path)
                     if self.playlist.mediaCount() == 0:
                         self.playlist.addMedia(QMediaContent(url))
                         self.view.pushButtonPlay.setIcon(
@@ -316,6 +340,26 @@ class Controller(QWidget):
                     else:
                         self.playlist.insertMedia(self.playlist.nextIndex() + i,
                                 QMediaContent(url))
+
+        elif tabIndex == 2: # artists tab
+            items = self.view.tableAlbumContent.selectedItems()
+            for i in range(len(items) // 2):
+                item = items[2 * i]
+                if item.itemType == 'song':
+                    print('Playing next: ' + item.name + ' by ' + item.artist)
+
+                    url = QUrl.fromLocalFile(item.path)
+                    if self.playlist.mediaCount() == 0:
+                        self.playlist.addMedia(QMediaContent(url))
+                        self.view.pushButtonPlay.setIcon(
+                            QIcon('../assets/icons/actions/media-playback-pause.png'))
+                        self.player.play()
+                        self.playerState = 1
+                    else:
+                        self.playlist.addMedia(QMediaContent(url))
+
+
+
     def playLibraryItem(self):
         self.playlist.removeMedia(self.playlist.nextIndex(), #clear the queue
             self.playlist.mediaCount() - 1)
@@ -336,6 +380,16 @@ class Controller(QWidget):
                     url = QUrl.fromLocalFile(path)
                     self.playlist.addMedia(QMediaContent(url))
 
+        elif tabIndex == 2: # artists tab
+            items = self.view.tableAlbumContent.selectedItems()
+            for i in range(len(items) // 2):
+                item = items[2 * i]
+                if item.itemType == 'song':
+                    print('Now playing: ' + item.name + ' by ' + item.artist)
+
+                    url = QUrl.fromLocalFile(item.path)
+                    self.playlist.addMedia(QMediaContent(url))
+
         if mediaCount != 0: # jump to next song 
             self.playlist.next()
         self.player.play()
@@ -352,6 +406,10 @@ class Controller(QWidget):
     def allSongsMenu(self, pos):
         allSongsTable = AllSongsMenuHandler(parent=self)
         allSongsTable.rightClick()
+
+    def artistTableMenu(self, pos): # FIXME
+        artistTable = AllSongsMenuHandler(parent=self)
+        artistTable.rightClick()
 
     def createAlbumGrid(self):
         self.scrollAreaWidgetContents = QWidget()
@@ -425,7 +483,8 @@ class Controller(QWidget):
                 songs = self.database.search_by_album(album)
                 if songs != []:
 
-                    item = QTableWidgetItem()
+                    item = MyTableItem('album', songs[0]['path'], artist, album,
+                            songs[0]['name'])
                     item.setIcon(QIcon('../assets/stock_album_cover.jpg'))
                     text = album + ' - ' + str(songs[0]['year']['_year'])
                     item.setText(text)
@@ -435,7 +494,10 @@ class Controller(QWidget):
                     i += 1
                     for song in songs:
                         self.view.tableAlbumContent.insertRow(i)
-                        self.view.tableAlbumContent.setItem(i, 0, QTableWidgetItem(song['name']))
+                        item = MyTableItem('song', song['path'], artist, album,
+                                song['name'])
+                        item.setText(item.name)
+                        self.view.tableAlbumContent.setItem(i, 0, item)
                         self.view.tableAlbumContent.setItem(i, 1,
                                 QTableWidgetItem(str(hhmmss(int(str(int(song["time"])) + '000')))))
                         i += 1
@@ -472,7 +534,11 @@ class AllSongsMenuHandler:
         action = menu.exec_(QtGui.QCursor.pos())
 
         if action == play: # play
+            index = self.parent.view.tabLibrary.currentIndex()
+            #if index == 0:
             self.parent.playLibraryItem()
+            #elif index == 2:
+                #self.parent.playLibraryItem()
 
         elif action == playNext: # play next
             self.parent.playNext()
