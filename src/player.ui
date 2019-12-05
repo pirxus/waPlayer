@@ -152,11 +152,11 @@ QLabelClickable:mousePressEvent{
         <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>true</bool>
         </attribute>
-        <attribute name="horizontalHeaderMinimumSectionSize">
-         <number>20</number>
-        </attribute>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>150</number>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>20</number>
         </attribute>
         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
          <bool>true</bool>
@@ -201,7 +201,7 @@ QLabelClickable:mousePressEvent{
         <x>0</x>
         <y>0</y>
         <width>641</width>
-        <height>401</height>
+        <height>412</height>
        </rect>
       </property>
       <property name="focusPolicy">
@@ -220,8 +220,8 @@ border-radius: 0 px;
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>637</width>
-         <height>397</height>
+         <width>639</width>
+         <height>410</height>
         </rect>
        </property>
       </widget>
@@ -251,8 +251,8 @@ border-radius: 0 px;
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>597</width>
-         <height>387</height>
+         <width>599</width>
+         <height>389</height>
         </rect>
        </property>
       </widget>
@@ -592,7 +592,7 @@ border-color:rgb(46, 52, 54);</string>
      <x>0</x>
      <y>0</y>
      <width>966</width>
-     <height>29</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

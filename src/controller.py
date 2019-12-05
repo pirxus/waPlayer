@@ -6,7 +6,7 @@ from view import View
 import eyed3, json, threading
 from clickable_label import QLabelClickable
 
-from PyQt5 import QtGui
+from PyQt5 import QtGui, sip
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem
@@ -49,6 +49,7 @@ class Controller(QWidget):
 
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
+
 
 
 
@@ -367,7 +368,7 @@ class Controller(QWidget):
                 if (counter < num):
                     name = alb[counter]
                 else:
-                    name = ''
+                    name = 'gjhskd'
 
                 albumCover = QLabelClickable(name)
                 albumCover.setScaledContents(True)
@@ -397,10 +398,15 @@ class Controller(QWidget):
 
     def labelClicked(self, label):
         print(label.name)
-        q = Query()
         songs = self.database.search_by_album(label.name)
         for song in songs:
-            print(songs['name'])
+            print(song['name'] + ':' + song['path'])
+        self.view.createAlbumView()
+        self.view.albumsButton.clicked.connect(self.goBack)
+
+    def goBack(self):
+        sip.delete(self.view.albumView)
+
 
 
 

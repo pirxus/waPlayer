@@ -29,11 +29,12 @@ class Database(TinyDB, Query):
         query = Query()
         album = album.replace('(', '\(')
         album = album.replace(')', '\)')
-        return self.database.search(query.album.search(album))
-
-    def get_album_songs(self):
-        query = Query()
-        return self.database.search(query.name.search('Permanence'))
+        albums = self.database.search(query.album.exists())
+        filteredAlb = []
+        for alb in albums:
+            if alb['album'] == album:
+                filteredAlb.append(alb)
+        return filteredAlb
 
 
     # returns json list of all song in database
