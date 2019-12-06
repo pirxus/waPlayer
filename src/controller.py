@@ -49,7 +49,8 @@ class Controller(QWidget):
 
         self.view.listArtistNames.itemClicked.connect(self.artistSelected)
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
-        self.view.tableAlbumContent.itemDoubleClicked.connect(self.songSelectedFromArtist)
+        self.view.tableAlbumContent.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
+        self.view.albumSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
         # has icon?
 
         # custom context menus
@@ -225,7 +226,7 @@ class Controller(QWidget):
                 self.view.labelPlayerSongAlbumArtist.setText(artistName)
                 if albumName != None:
                     self.view.labelPlayerSongAlbumArtist.setText(
-                            artistName + ' - ' + albumName)
+                            artistName + '\n' + albumName)
 
 
     def updateDuration(self, duration):
@@ -268,7 +269,7 @@ class Controller(QWidget):
             self.player.play()
             self.playerState = 1
 
-    def songSelectedFromArtist(self, item):
+    def songSelectedFromArtistAlbum(self, item):
         if item.itemType == 'song':
             print('Now playing: ' + item.name + ' by ' + item.artist)
             url = QUrl.fromLocalFile(item.path)
@@ -278,7 +279,6 @@ class Controller(QWidget):
                 QIcon('../assets/icons/actions/media-playback-pause.png'))
             self.player.play()
             self.playerState = 1
-
 
     def addToUpNext(self):
         tabIndex = self.view.tabLibrary.currentIndex()
@@ -391,6 +391,10 @@ class Controller(QWidget):
 
                     url = QUrl.fromLocalFile(item.path)
                     self.playlist.addMedia(QMediaContent(url))
+        elif tabIndex == 1: # albums tab
+            pass
+        elif tabIndex == 3: # playlists tab
+            pass
 
         if mediaCount != 0: # jump to next song 
             self.playlist.next()
@@ -467,15 +471,17 @@ class Controller(QWidget):
                 counter = counter +1
 
     def albumLabelClicked(self, label):
-        self.album_songs = self.database.search_by_album(label.name)
-        self.view.createAlbumView(self.album_songs)
+        album_songs = self.database.search_by_album(label.name)
+        self.view.openAlbum()
         self.view.albumsButton.clicked.connect(self.view.goBackAlbum)
         self.view.albumCover.clicked.connect(self.playAlbum)
 
-        if self.album_songs != []:
+        if album_songs != []:
             counter = 0
-            self.view.albumCover.setPixmap(self.getAlbumCover(self.album_songs[0]['path']))
-            for song in self.album_songs:
+            self.view.albumCover.setPixmap(self.getAlbumCover(album_songs[0]['path']))
+            self.view.albumName.setText(album_songs[0]['album'])
+            self.view.albumYear.setText(str(album_songs[0]['year']['_year']))
+            for song in album_songs:
                 item = MyTableItem('song' ,song['path'], song['artist'], song['album'], song['name'], song['time'])
                 item.setText(song['name'])
                 self.view.albumSongs.insertRow(counter)
