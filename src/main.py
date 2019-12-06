@@ -11,6 +11,7 @@ class App(QtWidgets.QApplication):
 
     def __init__(self):
         self.app = QtWidgets.QApplication(sys.argv)
+        self.app.setStyle('GTK+')
         self.controller = Controller()
 
     

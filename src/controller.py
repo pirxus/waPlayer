@@ -474,6 +474,7 @@ class Controller(QWidget):
 
         if self.album_songs != []:
             counter = 0
+            self.view.albumCover.setPixmap(self.getAlbumCover(self.album_songs[0]['path']))
             for song in self.album_songs:
                 item = MyTableItem('song' ,song['path'], song['artist'], song['album'], song['name'], song['time'])
                 item.setText(song['name'])
@@ -482,6 +483,7 @@ class Controller(QWidget):
                 self.view.albumSongs.setItem(counter, 0, item)
                 self.view.albumSongs.setItem(counter, 1, QTableWidgetItem(item.time))
                 counter += 1
+
     def artistSelected(self, item):
         self.loadArtistAlbums(item.text())
 

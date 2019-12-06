@@ -32,11 +32,7 @@
    <string>Wiggly Air Player</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QTabWidget
-{
-border-radius:100px;
-}
-QPushButton {
+   <string notr="true">QPushButton {
     background-color: rgb(173, 127, 168);
     border-style: outset;
     border-width: 2px;
@@ -48,7 +44,7 @@ QPushButton:pressed {
     border-style: inset;
 }
 QLabelClickable{
-	border:  3px solid black;
+	border:  2px solid black;
 }
 QLabelClickable:mousePressEvent{
     border: 10px solid black;
@@ -98,7 +94,7 @@ QLabelClickable:mousePressEvent{
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideMiddle</enum>
@@ -211,9 +207,7 @@ QLabelClickable:mousePressEvent{
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="styleSheet">
-       <string notr="true">QPushButton{
-border-radius: 0 px;
-}</string>
+       <string notr="true"/>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
@@ -332,7 +326,7 @@ border-radius: 0 px;
       <x>10</x>
       <y>15</y>
       <width>291</width>
-      <height>471</height>
+      <height>476</height>
      </rect>
     </property>
     <property name="frameShape">
