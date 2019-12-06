@@ -1,16 +1,17 @@
 from database import Database, Song
 from view import View
 
-import eyed3, json, threading
+import eyed3, eyed3.id3, json, threading
 from clickable_label import QLabelClickable
 from my_table_item import MyTableItem
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QImage
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
+FRONT_COVER = eyed3.id3.frames.ImageFrame.FRONT_COVER
 
 class Controller(QWidget):
 
@@ -51,6 +52,7 @@ class Controller(QWidget):
         self.view.tableAlbumContent.itemDoubleClicked.connect(self.songSelectedFromArtist)
         # has icon?
 
+        # custom context menus
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
         self.view.tableAlbumContent.customContextMenuRequested.connect(self.artistTableMenu)
 
@@ -423,26 +425,26 @@ class Controller(QWidget):
         self.gridLayout.setColumnStretch(2,1)
         self.gridLayout.setColumnStretch(3,1)
 
-        num = 4
+        alb = self.database.get_albums()
+        alb.sort()
+
+        num = len(alb)
         counter = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
         for i in range(num//4 + 2):
             for j in range(4):
-                #albumCover = QPushButton()
-                #albumCover.setIcon(QIcon('../assets/cover.jpg'))
-                #albumCover.setIconSize(QSize(128, 128))
-                #albumCover.setMinimumHeight(138)
-                #albumCover.setMaximumHeight(138)
-                #albumCover.setStyleSheet('QPushButton {background-color: #ffffff;}')
-
-                name = 'FUCK'
-                if counter > 2:
-                    name = 'THIS IS SOOOOO FUCKED'
+                if (counter < num):
+                    name = alb[counter]
+                    path = self.database.search_by_album(name)[0]['path']
+                else:
+                    name = ''
 
                 albumCover = QLabelClickable(name)
                 albumCover.setScaledContents(True)
-                albumCover.setPixmap(QPixmap('../assets/stock_album_cover.jpg').scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
-                albumCover.clicked.connect(self.labelClicked)
+                # load album art
+                albumCover.setPixmap(self.getAlbumCover(path).scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
+
+                albumCover.clicked.connect(self.albumLabelClicked)
 
                 title = QLabel(name)
                 title.setAlignment(Qt.AlignHCenter)
@@ -460,14 +462,26 @@ class Controller(QWidget):
                     self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Fixed)
                     subLayout.addSpacerItem(self.spaceItem)
                     subLayout.addWidget(title)
-                    pass
 
                 self.gridLayout.addLayout(subLayout, i, j)
                 counter = counter +1
 
-    def labelClicked(self, label):
-        print(label.name)
+    def albumLabelClicked(self, label):
+        self.album_songs = self.database.search_by_album(label.name)
+        self.view.createAlbumView(self.album_songs)
+        self.view.albumsButton.clicked.connect(self.view.goBackAlbum)
+        self.view.albumCover.clicked.connect(self.playAlbum)
 
+        if self.album_songs != []:
+            counter = 0
+            for song in self.album_songs:
+                item = MyTableItem('song' ,song['path'], song['artist'], song['album'], song['name'], song['time'])
+                item.setText(song['name'])
+                self.view.albumSongs.insertRow(counter)
+                self.view.albumSongs.setRowHeight(10, 10)
+                self.view.albumSongs.setItem(counter, 0, item)
+                self.view.albumSongs.setItem(counter, 1, QTableWidgetItem(item.time))
+                counter += 1
     def artistSelected(self, item):
         self.loadArtistAlbums(item.text())
 
@@ -484,8 +498,8 @@ class Controller(QWidget):
                 if songs != []:
 
                     item = MyTableItem('album', songs[0]['path'], artist, album,
-                            songs[0]['name'])
-                    item.setIcon(QIcon('../assets/stock_album_cover.jpg'))
+                            songs[0]['name'], 0)
+                    item.setIcon(QIcon(self.getAlbumCover(songs[0]['path'])))
                     text = album + ' - ' + str(songs[0]['year']['_year'])
                     item.setText(text)
 
@@ -495,18 +509,28 @@ class Controller(QWidget):
                     for song in songs:
                         self.view.tableAlbumContent.insertRow(i)
                         item = MyTableItem('song', song['path'], artist, album,
-                                song['name'])
+                                song['name'], song['time'])
                         item.setText(item.name)
                         self.view.tableAlbumContent.setItem(i, 0, item)
-                        self.view.tableAlbumContent.setItem(i, 1,
-                                QTableWidgetItem(str(hhmmss(int(str(int(song["time"])) + '000')))))
+                        self.view.tableAlbumContent.setItem(i, 1, QTableWidgetItem(item.time))
                         i += 1
 
-def hhmmss(ms):
-    h, r = divmod(ms, 3600000)
-    m, r = divmod(r, 60000)
-    s, _ = divmod(r, 1000)
-    return ("%d:%02d:%02d" % (h,m,s)) if h else ("%d:%02d" % (m,s))
+    def getAlbumCover(self, song): # returns QPixmap
+        coverArt = None
+        if song != None:
+            af = eyed3.load(song)
+            images = af.tag.images
+            for image in images:
+                if image.picture_type == FRONT_COVER:
+                    coverArt = image.image_data
+            if coverArt != None:
+                return QPixmap.fromImage(QImage.fromData(coverArt))
+        return QPixmap('../assets/stock_album_cover.jpg')
+
+    def playAlbum(self):
+        pass
+
+
 
 class AllSongsMenuHandler:
     def __init__(self, parent=None):
@@ -545,3 +569,10 @@ class AllSongsMenuHandler:
 
         elif action == addToUpNext: # add to up next
             self.parent.addToUpNext()
+
+
+def hhmmss(ms):
+    h, r = divmod(ms, 3600000)
+    m, r = divmod(r, 60000)
+    s, _ = divmod(r, 1000)
+    return ("%d:%02d:%02d" % (h,m,s)) if h else ("%d:%02d" % (m,s))

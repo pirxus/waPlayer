@@ -72,6 +72,17 @@ class Database(TinyDB, Query):
 
         return artistList
 
+    def get_albums(self):
+        albumList = []
+        query = Query()
+        search = self.database.search(query.album.exists())
+        for entry in search:
+            name = entry['album']
+            if name not in albumList:
+                albumList.append(name)
+
+        return albumList
+
     def get_albums_by_artist(self, artist):
         albumList = []
         query = Query()

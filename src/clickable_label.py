@@ -11,3 +11,14 @@ class QLabelClickable(QLabel):
 
     def mousePressEvent(self, ev):
         self.clicked.emit(self)
+
+
+class QLabelClickableWithParent(QLabel):
+    clicked = pyqtSignal(QLabel)
+
+    def __init__(self, name, parent):
+        QLabel.__init__(self, parent)
+        self.name = name
+
+    def mousePressEvent(self, ev):
+        self.clicked.emit(self)
