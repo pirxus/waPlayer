@@ -370,7 +370,6 @@ class Controller(QWidget):
                         self.playlist.addMedia(QMediaContent(url))
 
 
-
     def playLibraryItem(self):
         self.playlist.removeMedia(self.playlist.nextIndex(), #clear the queue
             self.playlist.mediaCount() - 1)
@@ -607,28 +606,28 @@ class Controller(QWidget):
 
     def playlistLabelClicked(self, label):
         # todo change to playlist
-        album_songs = self.database.search_by_album(label.name)
-        self.view.albumSongs.clearContents() #clear the table
-        for i in range(self.view.albumSongs.rowCount()):
-            self.view.albumSongs.removeRow(0)
-        self.view.openAlbum()
-        self.view.albumsButton.clicked.connect(self.view.goBackAlbum)
-        self.view.albumCover.clicked.connect(self.playAlbum)
-
-        if album_songs != []:
+        playlist_songs = self.database.search_by_playlist(label.name)
+        self.view.playlistSongs.clearContents() #clear the table
+        for i in range(self.view.playlistSongs.rowCount()):
+            self.view.playlistSongs.removeRow(0)
+        self.view.openPlaylist()
+        self.view.playlistButton.clicked.connect(self.view.goBackPlaylist)
+        self.view.playlistCover.clicked.connect(self.playPlaylist)
+        self.view.playlistName.setText(label.name)
+        if playlist_songs != []:
             counter = 0
-            self.view.albumCover.setPixmap(self.getAlbumCover(album_songs[0]['path']))
-            self.view.albumName.setText(album_songs[0]['album'])
-            self.view.albumYear.setText(str(album_songs[0]['year']['_year']))
-            for song in album_songs:
+            self.view.playlistCover.setPixmap(self.getAlbumCover(playlist_songs[0]['path']))
+            for song in playlist_songs:
                 item = MyTableItem('song' ,song['path'], song['artist'], song['album'], song['name'], song['time'])
                 item.setText(song['name'])
-                self.view.albumSongs.insertRow(counter)
-                self.view.albumSongs.setRowHeight(10, 10)
-                self.view.albumSongs.setItem(counter, 0, item)
+                self.view.playlistSongs.insertRow(counter)
+                self.view.playlistSongs.setRowHeight(10, 10)
+                self.view.playlistSongs.setItem(counter, 0, item)
+                artist = QTableWidgetItem(item.artist)
+                self.view.playlistSongs.setItem(counter, 1, artist)
                 time = QTableWidgetItem(item.time)
                 time.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                self.view.albumSongs.setItem(counter, 1, time)
+                self.view.playlistSongs.setItem(counter, 2, time)
                 counter += 1
 
     def artistSelected(self, item):
@@ -678,7 +677,13 @@ class Controller(QWidget):
                 return QPixmap.fromImage(QImage.fromData(coverArt))
         return QPixmap('../assets/stock_album_cover.jpg')
 
+    def getPlaylistCover(self):
+        pass
+
     def playAlbum(self):
+        pass
+
+    def playPlaylist(self):
         pass
 
     def createNewPlaylist(self):

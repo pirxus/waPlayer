@@ -152,11 +152,11 @@ QLabelClickable{
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>true</bool>
       </attribute>
-      <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>20</number>
-      </attribute>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>150</number>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>20</number>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>false</bool>
@@ -252,8 +252,8 @@ QLabelClickable{
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>637</width>
-         <height>397</height>
+         <width>639</width>
+         <height>399</height>
         </rect>
        </property>
       </widget>
@@ -335,11 +335,11 @@ QLabelClickable{
       <attribute name="horizontalHeaderVisible">
        <bool>false</bool>
       </attribute>
-      <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>10</number>
-      </attribute>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>50</number>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>10</number>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>false</bool>
@@ -417,8 +417,8 @@ QLabelClickable{
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>637</width>
-         <height>397</height>
+         <width>639</width>
+         <height>399</height>
         </rect>
        </property>
       </widget>
@@ -758,7 +758,7 @@ border-color:rgb(46, 52, 54);</string>
      <x>0</x>
      <y>0</y>
      <width>966</width>
-     <height>29</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -780,15 +780,8 @@ border-color:rgb(46, 52, 54);</string>
     <addaction name="separator"/>
     <addaction name="actionClear_up_next"/>
    </widget>
-   <widget class="QMenu" name="menuPlaylist">
-    <property name="title">
-     <string>Playlist</string>
-    </property>
-    <addaction name="actionCreate_playlist"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSong"/>
-   <addaction name="menuPlaylist"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen_File">
@@ -836,11 +829,6 @@ border-color:rgb(46, 52, 54);</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
-   </property>
-  </action>
-  <action name="actionCreate_playlist">
-   <property name="text">
-    <string>Create playlist</string>
    </property>
   </action>
  </widget>
