@@ -2,12 +2,12 @@ from database import Database, Song
 from view import View
 
 import eyed3, eyed3.id3, json, threading
-from clickable_label import QLabelClickable
+from clickable_label import QLabelClickable, QLabelClickableWithParent
 from my_table_item import MyTableItem
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
-from PyQt5.QtGui import QPixmap, QIcon, QImage
+from PyQt5.QtGui import QPixmap, QIcon, QImage, QCursor
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
@@ -420,11 +420,17 @@ class Controller(QWidget):
 
     def allSongsMenu(self, pos):
         allSongsTable = AllSongsMenuHandler(parent=self)
-        allSongsTable.rightClick()
+        allSongsTable.rightClick(None)
 
     def artistTableMenu(self, pos):
         artistTable = AllSongsMenuHandler(parent=self)
-        artistTable.rightClick()
+        artistTable.rightClick(None)
+
+    def playlistCoverMenu(self, pos):
+        pos = QtGui.QCursor.pos()
+        widget = QApplication.widgetAt(pos)
+        playlistCover = AllSongsMenuHandler(parent=self)
+        playlistCover.rightClick(widget.name)
 
     def createAlbumGrid(self):
         self.scrollAreaWidgetContents = QWidget()
@@ -576,6 +582,8 @@ class Controller(QWidget):
                 # todo change to playlist
                 playlistCover.setPixmap(self.getAlbumCover(None))
                 playlistCover.clicked.connect(self.playlistLabelClicked)
+                playlistCover.setContextMenuPolicy(Qt.CustomContextMenu)
+                playlistCover.customContextMenuRequested.connect(self.playlistCoverMenu)
 
                 playlistCover.setMaximumWidth(141)
                 playlistCover.setMaximumHeight(141)
@@ -687,13 +695,19 @@ class Controller(QWidget):
             self.database.create_playlist(name)
         self.createPlaylistGrid()
 
+    def deletePlaylist(self, name):
+        print(name)
+        self.database.delete_playlist(name)
+        self.createPlaylistGrid()
+
 
 class AllSongsMenuHandler:
     def __init__(self, parent=None):
             self.parent = parent
 
-    def rightClick(self):
+    def rightClick(self, name):
         top_menu = QMenu(self.parent)
+        tabIndex = self.parent.view.tabLibrary.currentIndex()
 
         menu = top_menu.addMenu("Menu")
         play = menu.addAction("Play")
@@ -703,11 +717,15 @@ class AllSongsMenuHandler:
         addToUpNext = menu.addAction("Add to up next")
         menu.addSeparator()
 
-        addToPlaylist = menu.addAction("Add to playlist...")
-        config = menu.addMenu("Configuration ...")
-        _load = config.addAction("&Load ...")
-        config.addSeparator()
-        config1 = config.addAction("Config1")
+        if tabIndex == 3:
+            deletePlaylist = menu.addAction("Delete playlist")
+        else:
+            addToPlaylist = menu.addAction("Add to playlist...")
+
+        #config = menu.addMenu("Configuration ...")
+        #_load = config.addAction("&Load ...")
+        #config.addSeparator()
+        #config1 = config.addAction("Config1")
 
         action = menu.exec_(QtGui.QCursor.pos())
 
@@ -723,6 +741,9 @@ class AllSongsMenuHandler:
 
         elif action == addToUpNext: # add to up next
             self.parent.addToUpNext()
+
+        elif action == deletePlaylist: # add to up next
+            self.parent.deletePlaylist(name)
 
 
 def hhmmss(ms):
