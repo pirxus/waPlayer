@@ -1,6 +1,6 @@
 .idea/
-database.json
-db_files/
+db_files/database.json
+db_files/playlists.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

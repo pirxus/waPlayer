@@ -155,6 +155,7 @@ class Controller(QWidget):
             self.view.listArtistNames.sortItems()
             self.loadArtistAlbums(artistList[0])
         self.createAlbumGrid()
+        self.createPlaylistGrid()
 
     def importRecursiveIterator(self, folder):
         if folder!= None:
@@ -446,7 +447,7 @@ class Controller(QWidget):
         counter = 0
         offset = 2
         if num > 4:
-            offset = 0
+            offset = 1
         # i = number of albums  divided by 4 +1  times 2 because of album title
         for i in range(num//4 + offset):
             for j in range(4):
@@ -528,49 +529,60 @@ class Controller(QWidget):
         self.gridLayoutPlaylist.setColumnStretch(3, 1)
 
         # todo change to playlist
-        pList = self.database.get_albums()
-        if pList == []:
-            return
+        pList = self.database.get_all_playlists()
         pList.sort()
 
+        self.view.addPlaylistButton = QPushButton()
+        self.view.addPlaylistButton.setText("Add playlist")
+        self.view.addPlaylistButton.setMaximumWidth(141)
+        self.view.addPlaylistButton.setMaximumHeight(141)
+        self.view.addPlaylistButton.setMinimumWidth(141)
+        self.view.addPlaylistButton.setMinimumHeight(141)
+        title = QLabel()
+        title.setWordWrap(True)
+        title.setMaximumHeight(58)
+        title.setMinimumHeight(58)
+        title.setMaximumWidth(141)
+        title.setMinimumWidth(141)
+        title.setText('')
+        title.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        subLayoutP = QVBoxLayout()
+        subLayoutP.addWidget(self.view.addPlaylistButton)
+        subLayoutP.addWidget(title)
+        self.gridLayoutPlaylist.addLayout(subLayoutP, 0, 0)
+
+        self.view.addPlaylistButton.clicked.connect(self.view.createPlaylistDialog)
+
         num = len(pList)
-        pList = pList + pList
         counter = 0
         offset = 2
         if num+1 > 4:
             offset = 1
         # i = number of albums  divided by 4 +1  times 2 because of album title
         for i in range(num // 4 + offset):
-            for j in range(4):
+            index = 0
+            if i == 0:
+                index = 1
+            for j in range(index,4):
                 if (counter < num):
                     name = pList[counter]
                     #todo change to playlist
-                    path = self.database.search_by_album(name)[0]['path']
                 else:
-                    path = None
                     name = ''
 
-                if i == 0 and j == 0:
-                        playlistCover = QPushButton('Add playlist')
-                        path = None
-                        name = ''
-
-                else:
-                    playlistCover = QLabelClickable(name)
-                    playlistCover.setScaledContents(True)
-                    # load playlist art
-                    # todo change to playlist
-                    playlistCover.setPixmap(self.getAlbumCover(path))
+                playlistCover = QLabelClickable(name)
+                playlistCover.setScaledContents(True)
+                # load playlist art
+                # todo change to playlist
+                playlistCover.setPixmap(self.getAlbumCover(None))
+                playlistCover.clicked.connect(self.playlistLabelClicked)
 
                 playlistCover.setMaximumWidth(141)
                 playlistCover.setMaximumHeight(141)
                 playlistCover.setMinimumWidth(141)
                 playlistCover.setMinimumHeight(141)
 
-
-
                 # todo change to playlist
-                playlistCover.clicked.connect(self.playlistLabelClicked)
 
                 title = QLabel()
                 title.setWordWrap(True)
@@ -591,8 +603,7 @@ class Controller(QWidget):
                     subLayoutP.addWidget(title)
 
                 self.gridLayoutPlaylist.addLayout(subLayoutP, i, j)
-                if not (i == 0 and j == 0):
-                    counter = counter + 1
+                counter = counter + 1
 
     def playlistLabelClicked(self, label):
         # todo change to playlist
@@ -674,6 +685,7 @@ class Controller(QWidget):
         name = self.view.dialog.lineEditNewPlaylist.text()
         if name != '':
             self.database.create_playlist(name)
+        self.createPlaylistGrid()
 
 
 class AllSongsMenuHandler:

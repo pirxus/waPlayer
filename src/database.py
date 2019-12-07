@@ -175,6 +175,7 @@ class Database(TinyDB, Query):
     # clears the database
     def db_purge(self):
         self.database.purge()
+        self.playlists.purge()
 
 
 class Song:
