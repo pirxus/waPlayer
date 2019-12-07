@@ -48,6 +48,7 @@ class Controller(QWidget):
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
         self.createAlbumGrid()
+        self.createPlaylistGrid()
 
         self.view.listArtistNames.itemClicked.connect(self.artistSelected)
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
@@ -428,10 +429,10 @@ class Controller(QWidget):
         self.gridLayout = QGridLayout(self.scrollAreaWidgetContents)
 
         self.view.scrollAreaAlbums.setWidget(self.scrollAreaWidgetContents)
-        self.gridLayout.setColumnStretch(0,1)
-        self.gridLayout.setColumnStretch(1,1)
-        self.gridLayout.setColumnStretch(2,1)
-        self.gridLayout.setColumnStretch(3,1)
+        self.gridLayout.setColumnStretch(0, 1)
+        self.gridLayout.setColumnStretch(1, 1)
+        self.gridLayout.setColumnStretch(2, 1)
+        self.gridLayout.setColumnStretch(3, 1)
 
         alb = self.database.get_albums()
         if alb == []:
@@ -487,6 +488,111 @@ class Controller(QWidget):
                 counter = counter +1
 
     def albumLabelClicked(self, label):
+        album_songs = self.database.search_by_album(label.name)
+        self.view.albumSongs.clearContents() #clear the table
+        for i in range(self.view.albumSongs.rowCount()):
+            self.view.albumSongs.removeRow(0)
+        self.view.openAlbum()
+        self.view.albumsButton.clicked.connect(self.view.goBackAlbum)
+        self.view.albumCover.clicked.connect(self.playAlbum)
+
+        if album_songs != []:
+            counter = 0
+            self.view.albumCover.setPixmap(self.getAlbumCover(album_songs[0]['path']))
+            self.view.albumName.setText(album_songs[0]['album'])
+            self.view.albumYear.setText(str(album_songs[0]['year']['_year']))
+            for song in album_songs:
+                item = MyTableItem('song' ,song['path'], song['artist'], song['album'], song['name'], song['time'])
+                item.setText(song['name'])
+                self.view.albumSongs.insertRow(counter)
+                self.view.albumSongs.setRowHeight(10, 10)
+                self.view.albumSongs.setItem(counter, 0, item)
+                time = QTableWidgetItem(item.time)
+                time.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                self.view.albumSongs.setItem(counter, 1, time)
+                counter += 1
+
+    def createPlaylistGrid(self):
+        self.scrollAreaWidgetContentsPlaylist = QWidget()
+        self.scrollAreaWidgetContentsPlaylist.setStyleSheet('QWidget {background-color: #ffffff;}')
+
+        self.gridLayoutPlaylist = QGridLayout(self.scrollAreaWidgetContentsPlaylist)
+
+        self.view.scrollAreaPlaylists.setWidget(self.scrollAreaWidgetContentsPlaylist)
+        self.gridLayoutPlaylist.setColumnStretch(0, 1)
+        self.gridLayoutPlaylist.setColumnStretch(1, 1)
+        self.gridLayoutPlaylist.setColumnStretch(2, 1)
+        self.gridLayoutPlaylist.setColumnStretch(3, 1)
+
+        # todo change to playlist
+        pList = self.database.get_albums()
+        if pList == []:
+            return
+        pList.sort()
+
+        num = len(pList)
+        pList = pList + pList
+        counter = 0
+        offset = 2
+        if num+1 > 4:
+            offset = 1
+        # i = number of albums  divided by 4 +1  times 2 because of album title
+        for i in range(num // 4 + offset):
+            for j in range(4):
+                if (counter < num):
+                    name = pList[counter]
+                    #todo change to playlist
+                    path = self.database.search_by_album(name)[0]['path']
+                else:
+                    path = None
+                    name = ''
+
+                if i == 0 and j == 0:
+                        playlistCover = QPushButton('Add playlist')
+                        path = None
+                        name = ''
+
+                else:
+                    playlistCover = QLabelClickable(name)
+                    playlistCover.setScaledContents(True)
+                    # load playlist art
+                    # todo change to playlist
+                    playlistCover.setPixmap(self.getAlbumCover(path))
+
+                playlistCover.setMaximumWidth(141)
+                playlistCover.setMaximumHeight(141)
+                playlistCover.setMinimumWidth(141)
+                playlistCover.setMinimumHeight(141)
+
+
+
+                # todo change to playlist
+                playlistCover.clicked.connect(self.playlistLabelClicked)
+
+                title = QLabel()
+                title.setWordWrap(True)
+                title.setMaximumHeight(58)
+                title.setMinimumHeight(58)
+                title.setMaximumWidth(141)
+                title.setMinimumWidth(141)
+                title.setText(name)
+                title.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+
+                subLayoutP = QVBoxLayout()
+                if counter < num:
+                    subLayoutP.addWidget(playlistCover)
+                    subLayoutP.addWidget(title)
+                else:
+                    self.spaceItemP = QSpacerItem(138, 138, QSizePolicy.Fixed)
+                    subLayoutP.addSpacerItem(self.spaceItemP)
+                    subLayoutP.addWidget(title)
+
+                self.gridLayoutPlaylist.addLayout(subLayoutP, i, j)
+                if not (i == 0 and j == 0):
+                    counter = counter + 1
+
+    def playlistLabelClicked(self, label):
+        # todo change to playlist
         album_songs = self.database.search_by_album(label.name)
         self.view.albumSongs.clearContents() #clear the table
         for i in range(self.view.albumSongs.rowCount()):
