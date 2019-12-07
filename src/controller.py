@@ -1,10 +1,10 @@
 from database import Database, Song
 from view import View
-
-import eyed3, eyed3.id3, json, threading
 from clickable_label import QLabelClickable, QLabelClickableWithParent
 from my_table_item import MyTableItem
+from playlist import PlaylistModel
 
+import eyed3, eyed3.id3, json, threading
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QCursor
@@ -20,15 +20,28 @@ class Controller(QWidget):
         self.view = View()
         self.player = QMediaPlayer()
         self.playlist = QMediaPlaylist()
+        self.player.setPlaylist(self.playlist)
+        self.playlistModel = PlaylistModel(self.playlist)
+        self.view.queue.playlistView.setModel(self.playlistModel)
         self.database = Database()
-        #self.queue = ShowQueue()
-
+        self.selection_model = self.view.queue.playlistView.selectionModel()
+        self.selection_model.selectionChanged.connect(self.playlist_selection_changed)
 
         self.setupView()
         self.setupPlayer()
         self.populateLibrary()
 
         self.playerState = -1 # 0 - stopped, 1 - playing, 2 - paused
+
+    def playlist_selection_changed(self, ix):
+        # We receive a QItemSelection from selectionChanged.
+        i = ix.indexes()[0].row()
+        self.playlist.setCurrentIndex(i)
+
+    def playlist_position_changed(self, i):
+        if i > -1:
+            ix = self.playlistModel.index(i)
+            self.view.queue.playlistView.setCurrentIndex(ix)
 
     # This method sets up the connections between the ui and the backend
     def setupView(self):
@@ -48,6 +61,7 @@ class Controller(QWidget):
         self.view.pushButtonNext.clicked.connect(self.nextButtonPressed)
         self.view.pushButtonShuffle.clicked.connect(self.playlist.shuffle)
         self.view.pushButtonAddToPlaylist.clicked.connect(self.addToPlaylistPressed)
+        self.view.queue.pushButtonClearQueue.clicked.connect(self.clearQueue)
 
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
@@ -63,8 +77,7 @@ class Controller(QWidget):
         #self.view.close_queue
 
         #-------------------------------queue
-        self.view.pushButtonQueue.clicked.connect(self.view.queue.show)
-        self.view.close_queue.clicked.connect(self.view.queue.hide)
+        self.view.pushButtonQueue.clicked.connect(self.view.openQueue)
         # todo self.view.clear_queue.clicked
         #todo self.playlist_list_viewclicked
 
