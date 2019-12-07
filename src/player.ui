@@ -380,7 +380,7 @@ QLabelClickable{
        <bool>false</bool>
       </property>
       <property name="columnCount">
-       <number>2</number>
+       <number>3</number>
       </property>
       <attribute name="horizontalHeaderVisible">
        <bool>false</bool>
@@ -391,6 +391,7 @@ QLabelClickable{
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
+      <column/>
       <column/>
       <column/>
      </widget>
