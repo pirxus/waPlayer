@@ -8,7 +8,9 @@ from my_table_item import MyTableItem
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QCursor
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, \
+    QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, \
+    QSpacerItem, QSizePolicy, QWidgetItem, QCheckBox
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 FRONT_COVER = eyed3.id3.frames.ImageFrame.FRONT_COVER
@@ -259,8 +261,24 @@ class Controller(QWidget):
         self.player.setVolume(value)
 
     def addToPlaylistPressed(self):
-        pass
-    
+        playlists = self.database.get_all_playlists()
+        self.view.displayAddToPlaylist(playlists)
+        self.getCheckedPlaylists()
+
+    def getCheckedPlaylists(self):
+        playlists = self.database.get_all_playlists()
+        counter = 0
+        for pl in playlists:
+            if counter < 4:
+                self.view.verticalLayoutAddToPList.itemAt(counter).widget().setChecked(True)
+            else:
+                self.view.verticalLayoutAddToPList.itemAt(counter).widget().setChecked(False)
+
+            if self.view.verticalLayoutAddToPList.itemAt(counter).widget().checkState() == 2:
+                print(self.view.verticalLayoutAddToPList.itemAt(counter).widget().text())
+
+            counter += 1
+
     def songSelectedFromAllSongs(self, item):
         row = self.view.tableAllSongs.currentRow() 
         name = self.view.tableAllSongs.item(row, 0).text()

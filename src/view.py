@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, uic, QtWidgets
 
-from PyQt5.QtWidgets import QPushButton, QMenu, QFrame, QTableWidget, QFrame, QWidget, QVBoxLayout, QLabel, QListView, QListWidget, QListWidgetItem, QTableWidgetItem, QHeaderView, QAbstractItemView
+from PyQt5.QtWidgets import QPushButton, QMenu, QFrame, QTableWidget, QFrame, QWidget, QVBoxLayout, QLabel, QListView, \
+    QListWidget, QListWidgetItem, QTableWidgetItem, QHeaderView, QAbstractItemView, QCheckBox
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
@@ -12,6 +13,7 @@ class View(QtWidgets.QMainWindow):
         super(View, self).__init__()
         self.view = uic.loadUi('player.ui', self)
         self.dialog = uic.loadUi('new_playlist.ui')
+        self.addToPlaylistDialog = uic.loadUi('addToPlaylist.ui')
         self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
         self.createAlbumView()
         self.createPlaylistView()
@@ -183,3 +185,19 @@ class View(QtWidgets.QMainWindow):
         self.view.playlistCover.hide()
         self.view.albumYear.hide()
         self.view.scrollAreaPlaylists.show()
+
+    def displayAddToPlaylist(self, playlists):
+        self.view.scrollAreaWidgetContentsAddToPList = QWidget()
+        self.view.scrollAreaWidgetContentsAddToPList.setStyleSheet('QWidget {background-color: #ffffff;}')
+        self.view.verticalLayoutAddToPList = QVBoxLayout(self.view.scrollAreaWidgetContentsAddToPList)
+        self.addToPlaylistDialog.scrollAreaAddTolaylists.setWidget(self.view.scrollAreaWidgetContentsAddToPList)
+
+        if playlists != []:
+            for plist in playlists:
+                chBox = QCheckBox()
+                chBox.setText(plist)
+                chBox.setMaximumHeight(20)
+                chBox.setMinimumHeight(20)
+                self.view.verticalLayoutAddToPList.addWidget(chBox)
+
+        self.view.addToPlaylistDialog.show()
