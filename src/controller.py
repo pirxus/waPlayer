@@ -37,6 +37,8 @@ class Controller(QWidget):
         self.view.actionAdd_to_up_next.triggered.connect(self.addToUpNext)
         self.view.actionClear_up_next.triggered.connect(self.clearQueue)
 
+        self.view.tabLibrary.tabBarClicked.connect(self.view.goBackAlbumTab)
+
         self.view.pushButtonPlay.clicked.connect(self.playButtonPressed)
         self.view.pushButtonPrev.clicked.connect(self.prevButtonPressed)
         self.view.pushButtonNext.clicked.connect(self.nextButtonPressed)
@@ -415,7 +417,7 @@ class Controller(QWidget):
         allSongsTable = AllSongsMenuHandler(parent=self)
         allSongsTable.rightClick()
 
-    def artistTableMenu(self, pos): # FIXME
+    def artistTableMenu(self, pos):
         artistTable = AllSongsMenuHandler(parent=self)
         artistTable.rightClick()
 

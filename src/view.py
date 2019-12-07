@@ -20,6 +20,7 @@ class View(QtWidgets.QMainWindow):
         self.view.tableAllSongs.setColumnWidth(0, 265)
         self.view.tableAllSongs.setColumnWidth(1, 75)
         self.view.tableAlbumContent.setColumnWidth(0, 350)
+        self.view.labelPlayerSongName.setStyleSheet("font-weight: bold;")
 
     def createAlbumView(self):
             #cover of album
@@ -30,11 +31,11 @@ class View(QtWidgets.QMainWindow):
             self.view.albumCover.setMinimumHeight(140)
             self.view.albumCover.setScaledContents(True)
             self.view.albumCover.setStyleSheet('border: 2px solid black;')
-            self.view.albumCover.move(5, 40)
+            self.view.albumCover.move(5, 70)
 
             # album year
             self.view.albumYear = QLabel(self.view.tabAlbums)
-            self.view.albumYear.move(5, 190)
+            self.view.albumYear.move(5, 50)
             self.view.albumYear.setMaximumWidth(140)
             self.view.albumYear.setMinimumWidth(140)
             self.view.albumYear.setWordWrap(True)
@@ -45,8 +46,21 @@ class View(QtWidgets.QMainWindow):
             self.view.albumName.move(5, 213)
             self.view.albumName.setMaximumWidth(140)
             self.view.albumName.setMinimumWidth(140)
+            self.view.albumName.setMaximumHeight(200)
+            self.view.albumName.setMinimumHeight(200)
             self.view.albumName.setWordWrap(True)
-            self.view.albumName.setAlignment(Qt.AlignHCenter)
+            self.view.albumName.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+            self.view.albumName.setStyleSheet("font-weight: bold;")
+
+            # artist name TODO
+            #self.view.artistName = QLabel(self.view.tabAlbums)
+            #self.view.artistName.move(5, 213)
+            #self.view.artistName.setMaximumWidth(140)
+            #self.view.artistName.setMinimumWidth(140)
+            #self.view.artistName.setMaximumHeight(200)
+            #self.view.artistName.setMinimumHeight(200)
+            #self.view.artistName.setWordWrap(True)
+            #self.view.artistName.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
 
             #back button
             self.view.albumsButton = QPushButton(self.view.tabAlbums)
@@ -54,7 +68,7 @@ class View(QtWidgets.QMainWindow):
             self.view.albumsButton.setText('<< Back')
             self.view.albumsButton.setMinimumWidth(70)
             self.view.albumsButton.setMinimumHeight(30)
-            self.view.albumsButton.move(45, 5)
+            self.view.albumsButton.move(40, 5)
 
             #songs list
             self.view.albumSongs.setColumnWidth(0, 350)
@@ -72,6 +86,15 @@ class View(QtWidgets.QMainWindow):
         self.view.albumCover.hide()
         self.view.albumYear.hide()
         self.view.scrollAreaAlbums.show()
+
+    def goBackAlbumTab(self, index):
+        if self.tabLibrary.currentIndex() == index:
+            self.view.albumSongs.hide()
+            self.view.albumsButton.hide()
+            self.view.albumName.hide()
+            self.view.albumCover.hide()
+            self.view.albumYear.hide()
+            self.view.scrollAreaAlbums.show()
 
     def openAlbum(self):
         self.view.scrollAreaAlbums.hide()

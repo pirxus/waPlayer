@@ -46,11 +46,6 @@ QPushButton:pressed {
 QLabelClickable{
 	border:  2px solid black;
 }
-QLabelClickable:mousePressEvent{
-    border: 10px solid black;
-    border-color: rgb(204, 0, 0);
-    border-style: inset;
-}
 </string>
   </property>
   <property name="iconSize">
