@@ -21,6 +21,9 @@ class Controller(QWidget):
         self.player = QMediaPlayer()
         self.playlist = QMediaPlaylist()
         self.database = Database()
+        #self.queue = ShowQueue()
+
+
         self.setupView()
         self.setupPlayer()
         self.populateLibrary()
@@ -56,6 +59,14 @@ class Controller(QWidget):
         self.view.tableAlbumContent.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
         self.view.albumSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
         self.view.playlistSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
+
+        #self.view.close_queue
+
+        #-------------------------------queue
+        self.view.pushButtonQueue.clicked.connect(self.view.queue.show)
+        self.view.close_queue.clicked.connect(self.view.queue.hide)
+        # todo self.view.clear_queue.clicked
+        #todo self.playlist_list_viewclicked
 
         # custom context menus
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)

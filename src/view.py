@@ -17,6 +17,7 @@ class View(QtWidgets.QMainWindow):
         self.createPlaylistView()
         self.adjustWidgets()
         self.show()
+        self.view.queue.hide()
 
     def adjustWidgets(self):
         self.view.tableAllSongs.setColumnWidth(0, 265)
