@@ -14,6 +14,7 @@ class View(QtWidgets.QMainWindow):
         self.dialog = uic.loadUi('new_playlist.ui')
         self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
         self.createAlbumView()
+        self.createPlaylistView()
         self.adjustWidgets()
         self.show()
 
@@ -79,6 +80,9 @@ class View(QtWidgets.QMainWindow):
             self.view.albumsButton.hide()
             self.view.albumName.hide()
             self.view.albumCover.hide()
+
+    def createPlaylistView(self):
+        self.view.playlistSongs.hide()
 
     def goBackAlbum(self):
         self.view.albumSongs.hide()
