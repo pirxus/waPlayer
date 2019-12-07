@@ -567,7 +567,7 @@ class Controller(QWidget):
     def createNewPlaylist(self):
         name = self.view.dialog.lineEditNewPlaylist.text()
         if name != '':
-            self.database.createNewPlaylist(name)
+            self.database.create_playlist(name)
 
 
 class AllSongsMenuHandler:

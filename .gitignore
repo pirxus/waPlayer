@@ -1,5 +1,6 @@
 .idea/
 database.json
+db_files/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
