@@ -94,7 +94,7 @@ QLabelClickable:mousePressEvent{
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideMiddle</enum>
@@ -203,7 +203,7 @@ QLabelClickable:mousePressEvent{
        <rect>
         <x>150</x>
         <y>-2</y>
-        <width>487</width>
+        <width>485</width>
         <height>404</height>
        </rect>
       </property>
