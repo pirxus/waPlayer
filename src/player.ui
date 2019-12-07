@@ -79,6 +79,9 @@ QLabelClickable{
     <property name="focusPolicy">
      <enum>Qt::NoFocus</enum>
     </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::CustomContextMenu</enum>
+    </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
     </property>
@@ -204,6 +207,9 @@ QLabelClickable{
       </property>
       <property name="focusPolicy">
        <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
       </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
@@ -370,6 +376,9 @@ QLabelClickable{
       <property name="focusPolicy">
        <enum>Qt::NoFocus</enum>
       </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
@@ -380,7 +389,7 @@ QLabelClickable{
        <bool>false</bool>
       </property>
       <property name="columnCount">
-       <number>2</number>
+       <number>3</number>
       </property>
       <attribute name="horizontalHeaderVisible">
        <bool>false</bool>
@@ -391,6 +400,7 @@ QLabelClickable{
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
+      <column/>
       <column/>
       <column/>
      </widget>

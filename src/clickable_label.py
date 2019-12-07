@@ -12,6 +12,11 @@ class QLabelClickable(QLabel):
     def mousePressEvent(self, ev):
         self.clicked.emit(self)
 
+    def enterEvent(self, ev):
+        self.setStyleSheet("border-color: #B14B88;")
+
+    def leaveEvent(self, ev):
+        self.setStyleSheet("border-color: black;")
 
 class QLabelClickableWithParent(QLabel):
     clicked = pyqtSignal(QLabel)
@@ -22,3 +27,9 @@ class QLabelClickableWithParent(QLabel):
 
     def mousePressEvent(self, ev):
         self.clicked.emit(self)
+
+    #def enterEvent(self, ev):
+        #self.setStyleSheet("border-color: #B14B88;")
+
+    #def leaveEvent(self, ev):
+       # self.setStyleSheet("border-color: black;")

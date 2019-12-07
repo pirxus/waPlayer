@@ -32,7 +32,7 @@ class Database(TinyDB, Query):
         self.database.insert(song.to_json())
 
     def insert_playlist(self, playlist):
-        self.database.insert(song.to_json())
+        self.database.insert(playlist.to_json())
     
     def assign_playlist(self, songPath, playlist):
         query = Query()
