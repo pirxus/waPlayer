@@ -25,58 +25,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QScrollArea" name="scrollAreaAddTolaylists">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>30</y>
-     <width>250</width>
-     <height>250</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>250</width>
-     <height>230</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>250</width>
-     <height>250</height>
-    </size>
-   </property>
-   <property name="widgetResizable">
-    <bool>true</bool>
-   </property>
-   <widget class="QWidget" name="scrollAreaWidgetContentsAddToPList">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>248</width>
-      <height>248</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>1000000</width>
-      <height>1000000</height>
-     </size>
-    </property>
-   </widget>
-  </widget>
   <widget class="QLabel" name="labelAddToPlaylist">
    <property name="geometry">
     <rect>
-     <x>6</x>
-     <y>7</y>
+     <x>0</x>
+     <y>10</y>
      <width>250</width>
      <height>20</height>
     </rect>
@@ -98,6 +51,19 @@
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="playlistCheck">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>30</y>
+     <width>238</width>
+     <height>237</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
    </property>
   </widget>
  </widget>

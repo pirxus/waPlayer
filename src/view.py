@@ -15,6 +15,7 @@ class View(QtWidgets.QMainWindow):
         self.dialog = uic.loadUi('new_playlist.ui')
         self.addToPlaylistDialog = uic.loadUi('addToPlaylist.ui')
         self.queue = uic.loadUi('queue.ui')
+
         self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
         self.createAlbumView()
         self.createPlaylistView()
@@ -28,6 +29,7 @@ class View(QtWidgets.QMainWindow):
         self.view.labelPlayerSongName.setStyleSheet("font-weight: bold;")
         self.queue.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup)
         self.dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup)
+        self.addToPlaylistDialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup)
 
     def createAlbumView(self):
             #cover of album
@@ -191,19 +193,8 @@ class View(QtWidgets.QMainWindow):
         self.view.scrollAreaPlaylists.show()
 
     def displayAddToPlaylist(self, playlists):
-        self.view.scrollAreaWidgetContentsAddToPList = QWidget()
-        self.view.scrollAreaWidgetContentsAddToPList.setStyleSheet('QWidget {background-color: #ffffff;}')
-        self.view.verticalLayoutAddToPList = QVBoxLayout(self.view.scrollAreaWidgetContentsAddToPList)
-        self.addToPlaylistDialog.scrollAreaAddTolaylists.setWidget(self.view.scrollAreaWidgetContentsAddToPList)
-
-        if playlists != []:
-            for plist in playlists:
-                chBox = QCheckBox()
-                chBox.setText(plist)
-                chBox.setMaximumHeight(20)
-                chBox.setMinimumHeight(20)
-                self.view.verticalLayoutAddToPList.addWidget(chBox)
-
+        self.addToPlaylistDialog.move(self.mapToGlobal(QPoint(0, 0)).x() + 50,
+                self.mapToGlobal(QPoint(0, 0)).y() + 100)
         self.view.addToPlaylistDialog.show()
 
     def openQueue(self):

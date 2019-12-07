@@ -1,7 +1,7 @@
 from database import Database, Song
 from view import View
 from clickable_label import QLabelClickable, QLabelClickableWithParent
-from my_table_item import MyTableItem
+from my_table_item import MyTableItem, MyListItem
 from playlist import PlaylistModel
 
 import eyed3, eyed3.id3, json, threading
@@ -55,6 +55,7 @@ class Controller(QWidget):
         self.view.actionAdd_to_up_next.triggered.connect(self.addToUpNext)
         self.view.actionClear_up_next.triggered.connect(self.clearQueue)
         self.view.actionCreate_playlist.triggered.connect(self.view.createPlaylistDialog)
+        self.view.actionAdd_to_playlist.triggered.connect(self.addToPlaylistButtonPressed)
 
         self.view.tabLibrary.tabBarClicked.connect(self.view.goBackAlbumTab)
 
@@ -62,7 +63,7 @@ class Controller(QWidget):
         self.view.pushButtonPrev.clicked.connect(self.prevButtonPressed)
         self.view.pushButtonNext.clicked.connect(self.nextButtonPressed)
         self.view.pushButtonShuffle.clicked.connect(self.playlist.shuffle)
-        self.view.pushButtonAddToPlaylist.clicked.connect(self.addToPlaylistPressed)
+        self.view.pushButtonAddToPlaylist.clicked.connect(self.addToPlaylistButtonPressed)
         self.view.queue.pushButtonClearQueue.clicked.connect(self.clearQueue)
 
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
@@ -283,28 +284,51 @@ class Controller(QWidget):
             self.playerState = 0
             self.view.pushButtonPlay.setIcon(
                 QIcon('../assets/icons/actions/gtk-media-play-ltr.png'))
-            #self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
+
     def changeVolume(self, value):
         self.player.setVolume(value)
 
-    def addToPlaylistPressed(self):
+    def addToPlaylistButtonPressed(self):
         playlists = self.database.get_all_playlists()
-        self.view.displayAddToPlaylist(playlists)
         self.getCheckedPlaylists()
+        self.view.displayAddToPlaylist(playlists)
+
+    def addToPlaylistContext(self):
+        index = self.view.tabLibrary.currentIndex()
+        if index == 0: #all songs
+            pass
+        elif index == 1: #albums
+            pass
+        elif index == 2: #artists
+            pass
+        else: # playlists
 
     def getCheckedPlaylists(self):
+        self.view.addToPlaylistDialog.playlistCheck.clear()
+        self.view.addToPlaylistDialog.playlistCheck.itemChanged.connect(self.playlistCheck)
+        currentSong = self.player.currentMedia().canonicalUrl().toLocalFile()
+        if currentSong == '':
+            return None
+
         playlists = self.database.get_all_playlists()
-        counter = 0
-        for pl in playlists:
-            if counter < 4:
-                self.view.verticalLayoutAddToPList.itemAt(counter).widget().setChecked(True)
+        songPlaylists = self.database.get_song_playlists(currentSong)
+        for playlist in playlists:
+            item = MyListItem(currentSong, playlist)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable);
+            item.setText(item.name)
+            if playlist in songPlaylists:
+                item.setCheckState(Qt.Checked)
             else:
-                self.view.verticalLayoutAddToPList.itemAt(counter).widget().setChecked(False)
+                item.setCheckState(Qt.Unchecked)
 
-            if self.view.verticalLayoutAddToPList.itemAt(counter).widget().checkState() == 2:
-                print(self.view.verticalLayoutAddToPList.itemAt(counter).widget().text())
-
-            counter += 1
+            self.view.addToPlaylistDialog.playlistCheck.addItem(item)
+            
+    def playlistCheck(self, item):
+        action = item.checkState()
+        if action == 0:
+            self.database.remove_from_playlist(item.path, item.name)
+        else:
+            self.database.assign_playlist(item.path, item.name)
 
     def songSelectedFromAllSongs(self, item):
         row = self.view.tableAllSongs.currentRow() 
@@ -768,7 +792,6 @@ class Controller(QWidget):
         self.createPlaylistGrid()
 
     def deletePlaylist(self, name):
-        print(name)
         self.database.delete_playlist(name)
         self.createPlaylistGrid()
 

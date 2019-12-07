@@ -1,5 +1,5 @@
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QLabel, QVBoxLayout
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 
 class QLabelClickable(QLabel):
@@ -10,7 +10,10 @@ class QLabelClickable(QLabel):
         self.name = name
 
     def mousePressEvent(self, ev):
-        self.clicked.emit(self)
+        if ev.button() == Qt.RightButton:
+            QLabel.mousePressEvent(self, ev)
+        else:
+            self.clicked.emit(self)
 
     def enterEvent(self, ev):
         self.setStyleSheet("border-color: #B14B88;")
@@ -26,7 +29,11 @@ class QLabelClickableWithParent(QLabel):
         self.name = name
 
     def mousePressEvent(self, ev):
-        self.clicked.emit(self)
+        if ev.button() == Qt.RightButton:
+            QLabel.mousePressEvent(self, ev)
+        else:
+            self.clicked.emit(self)
+
 
     #def enterEvent(self, ev):
         #self.setStyleSheet("border-color: #B14B88;")
