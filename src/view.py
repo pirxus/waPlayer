@@ -13,13 +13,13 @@ class View(QtWidgets.QMainWindow):
         self.view = uic.loadUi('player.ui', self)
         self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
         self.createAlbumView()
+        self.adjustWidgets()
         self.show()
 
-    def addControls(self):
-        self.button = QtWidgets.QPushButton(self)
-        self.button.setText('suh')
-        self.button.move(50, 40)
-        self.button.show()
+    def adjustWidgets(self):
+        self.view.tableAllSongs.setColumnWidth(0, 265)
+        self.view.tableAllSongs.setColumnWidth(1, 75)
+        self.view.tableAlbumContent.setColumnWidth(0, 350)
 
     def createAlbumView(self):
             #cover of album

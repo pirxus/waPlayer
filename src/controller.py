@@ -135,8 +135,9 @@ class Controller(QWidget):
             for item in dataList: #populate the all songs tab
                 self.view.tableAllSongs.insertRow(i)
                 self.view.tableAllSongs.setItem(i, 0, QTableWidgetItem(item["name"]))
-                self.view.tableAllSongs.setItem(i, 1,
-                        QTableWidgetItem(str(hhmmss(int(str(int(item["time"])) + '000')))))
+                time = QTableWidgetItem(str(hhmmss(int(str(int(item["time"])) + '000'))))
+                time.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter) # align time to the right
+                self.view.tableAllSongs.setItem(i, 1, time)
                 self.view.tableAllSongs.setItem(i, 2, QTableWidgetItem(item["album"]))
                 self.view.tableAllSongs.setItem(i, 3, QTableWidgetItem(item["artist"]))
                 i += 1
@@ -147,6 +148,7 @@ class Controller(QWidget):
                 self.view.listArtistNames.addItem(artist)
             self.view.listArtistNames.sortItems()
             self.loadArtistAlbums(artistList[0])
+        self.createAlbumGrid()
 
     def importRecursiveIterator(self, folder):
         if folder!= None:
@@ -430,39 +432,49 @@ class Controller(QWidget):
         self.gridLayout.setColumnStretch(3,1)
 
         alb = self.database.get_albums()
+        if alb == []:
+            return
         alb.sort()
 
         num = len(alb)
         counter = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
-        for i in range(num//4 + 2):
+        for i in range(num//4 + 4):
             for j in range(4):
                 if (counter < num):
                     name = alb[counter]
                     path = self.database.search_by_album(name)[0]['path']
                 else:
+                    path = None
                     name = ''
 
                 albumCover = QLabelClickable(name)
+                albumCover.setMaximumWidth(141)
+                albumCover.setMaximumHeight(141)
+                albumCover.setMinimumWidth(141)
+                albumCover.setMinimumHeight(141)
                 albumCover.setScaledContents(True)
+
                 # load album art
-                albumCover.setPixmap(self.getAlbumCover(path).scaled(141, 141, Qt.KeepAspectRatio, Qt.FastTransformation))
+                albumCover.setPixmap(self.getAlbumCover(path))
 
                 albumCover.clicked.connect(self.albumLabelClicked)
 
-                title = QLabel(name)
-                title.setAlignment(Qt.AlignHCenter)
-                title.setMaximumHeight(20)
+                title = QLabel()
+                title.setWordWrap(True)
+                title.setMaximumHeight(58)
+                title.setMinimumHeight(58)
                 title.setMaximumWidth(141)
+                title.setMinimumWidth(141)
+                title.setText(name)
+                title.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
 
                 subLayout = QVBoxLayout()
                 if(counter < num):
                     subLayout.addWidget(albumCover)
                     subLayout.addWidget(title)
                 else:
-                    title = QLabel('')
-                    title.setAlignment(Qt.AlignHCenter)
-                    title.setMaximumHeight(20)
+                    title.setText('')
                     self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Fixed)
                     subLayout.addSpacerItem(self.spaceItem)
                     subLayout.addWidget(title)
@@ -472,6 +484,9 @@ class Controller(QWidget):
 
     def albumLabelClicked(self, label):
         album_songs = self.database.search_by_album(label.name)
+        self.view.albumSongs.clearContents() #clear the table
+        for i in range(self.view.albumSongs.rowCount()):
+            self.view.albumSongs.removeRow(0)
         self.view.openAlbum()
         self.view.albumsButton.clicked.connect(self.view.goBackAlbum)
         self.view.albumCover.clicked.connect(self.playAlbum)
@@ -487,7 +502,9 @@ class Controller(QWidget):
                 self.view.albumSongs.insertRow(counter)
                 self.view.albumSongs.setRowHeight(10, 10)
                 self.view.albumSongs.setItem(counter, 0, item)
-                self.view.albumSongs.setItem(counter, 1, QTableWidgetItem(item.time))
+                time = QTableWidgetItem(item.time)
+                time.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                self.view.albumSongs.setItem(counter, 1, time)
                 counter += 1
 
     def artistSelected(self, item):
@@ -520,7 +537,9 @@ class Controller(QWidget):
                                 song['name'], song['time'])
                         item.setText(item.name)
                         self.view.tableAlbumContent.setItem(i, 0, item)
-                        self.view.tableAlbumContent.setItem(i, 1, QTableWidgetItem(item.time))
+                        time = QTableWidgetItem(item.time)
+                        time.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                        self.view.tableAlbumContent.setItem(i, 1, time)
                         i += 1
 
     def getAlbumCover(self, song): # returns QPixmap
