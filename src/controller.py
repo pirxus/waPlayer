@@ -55,11 +55,14 @@ class Controller(QWidget):
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
         self.view.tableAlbumContent.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
         self.view.albumSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
-        # has icon?
+        self.view.playlistSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
 
         # custom context menus
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
         self.view.tableAlbumContent.customContextMenuRequested.connect(self.artistTableMenu)
+        self.view.albumSongs.customContextMenuRequested.connect(self.albumSongsMenu)
+        self.view.playlistSongs.customContextMenuRequested.connect(self.playlistSongsMenu)
+
         #dialogs
         self.view.dialog.buttonBox.accepted.connect(self.createNewPlaylist)
 
@@ -310,9 +313,14 @@ class Controller(QWidget):
                         self.playerState = 1
                     else:
                         self.playlist.addMedia(QMediaContent(url))
-        elif tabIndex == 2: # artists tab
+        else:
+            if tabIndex == 1: #albums
+                items = self.view.albumSongs.selectedItems()
+            elif tabIndex == 2: #artists
+                items = self.view.tableAlbumContent.selectedItems()
+            elif tabIndex == 3: #playlists
+                items = self.view.playlistSongs.selectedItems()
 
-            items = self.view.tableAlbumContent.selectedItems()
             for i in range(len(items) // 2):
                 item = items[2 * i]
                 if item.itemType == 'song':
@@ -352,8 +360,14 @@ class Controller(QWidget):
                         self.playlist.insertMedia(self.playlist.nextIndex() + i,
                                 QMediaContent(url))
 
-        elif tabIndex == 2: # artists tab
-            items = self.view.tableAlbumContent.selectedItems()
+        else:
+            if tabIndex == 1: #albums
+                items = self.view.albumSongs.selectedItems()
+            elif tabIndex == 2: #artists
+                items = self.view.tableAlbumContent.selectedItems()
+            elif tabIndex == 3: #playlists
+                items = self.view.playlistSongs.selectedItems()
+
             for i in range(len(items) // 2):
                 item = items[2 * i]
                 if item.itemType == 'song':
@@ -368,7 +382,6 @@ class Controller(QWidget):
                         self.playerState = 1
                     else:
                         self.playlist.addMedia(QMediaContent(url))
-
 
 
     def playLibraryItem(self):
@@ -391,8 +404,15 @@ class Controller(QWidget):
                     url = QUrl.fromLocalFile(path)
                     self.playlist.addMedia(QMediaContent(url))
 
-        elif tabIndex == 2: # artists tab
-            items = self.view.tableAlbumContent.selectedItems()
+
+        else:
+            if tabIndex == 1: # albums tab
+                items = self.view.albumSongs.selectedItems()
+            elif tabIndex == 2: # artist tab
+                items = self.view.tableAlbumContent.selectedItems()
+            elif tabIndex == 3: # playlist tab
+                items = self.view.playlistSongs.selectedItems()
+
             for i in range(len(items) // 2):
                 item = items[2 * i]
                 if item.itemType == 'song':
@@ -400,10 +420,6 @@ class Controller(QWidget):
 
                     url = QUrl.fromLocalFile(item.path)
                     self.playlist.addMedia(QMediaContent(url))
-        elif tabIndex == 1: # albums tab
-            pass
-        elif tabIndex == 3: # playlists tab
-            pass
 
         if mediaCount != 0: # jump to next song 
             self.playlist.next()
@@ -425,6 +441,14 @@ class Controller(QWidget):
     def artistTableMenu(self, pos):
         artistTable = AllSongsMenuHandler(parent=self)
         artistTable.rightClick(None)
+
+    def albumSongsMenu(self, pos):
+        albumSongs = AllSongsMenuHandler(parent=self)
+        albumSongs.rightClick(None)
+
+    def playlistSongsMenu(self, pos):
+        playlistSongs = AllSongsMenuHandler(parent=self)
+        playlistSongs.rightClick(None)
 
     def playlistCoverMenu(self, pos):
         pos = QtGui.QCursor.pos()
@@ -736,11 +760,7 @@ class AllSongsMenuHandler:
         action = menu.exec_(QtGui.QCursor.pos())
 
         if action == play: # play
-            index = self.parent.view.tabLibrary.currentIndex()
-            #if index == 0:
             self.parent.playLibraryItem()
-            #elif index == 2:
-                #self.parent.playLibraryItem()
 
         elif action == playNext: # play next
             self.parent.playNext()
