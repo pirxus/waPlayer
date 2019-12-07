@@ -36,6 +36,7 @@ class Controller(QWidget):
         self.view.actionPlay_next.triggered.connect(self.playNext)
         self.view.actionAdd_to_up_next.triggered.connect(self.addToUpNext)
         self.view.actionClear_up_next.triggered.connect(self.clearQueue)
+        self.view.actionCreate_playlist.triggered.connect(self.view.createPlaylistDialog)
 
         self.view.tabLibrary.tabBarClicked.connect(self.view.goBackAlbumTab)
 
@@ -58,6 +59,8 @@ class Controller(QWidget):
         # custom context menus
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
         self.view.tableAlbumContent.customContextMenuRequested.connect(self.artistTableMenu)
+        #dialogs
+        self.view.dialog.buttonBox.accepted.connect(self.createNewPlaylist)
 
 
 
@@ -130,7 +133,7 @@ class Controller(QWidget):
     def populateLibrary(self):
         self.view.tableAllSongs.clearContents()
         self.view.listArtistNames.clear()
-        dataList = self.database.get_all()
+        dataList = self.database.get_all(self.database.database)
         artistList = self.database.get_artists()
         if dataList:
             i = 0
@@ -561,6 +564,10 @@ class Controller(QWidget):
     def playAlbum(self):
         pass
 
+    def createNewPlaylist(self):
+        name = self.view.dialog.lineEditNewPlaylist.text()
+        if name != '':
+            self.database.createNewPlaylist(name)
 
 
 class AllSongsMenuHandler:
@@ -580,9 +587,7 @@ class AllSongsMenuHandler:
 
         addToPlaylist = menu.addAction("Add to playlist...")
         config = menu.addMenu("Configuration ...")
-
         _load = config.addAction("&Load ...")
-
         config.addSeparator()
         config1 = config.addAction("Config1")
 

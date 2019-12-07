@@ -11,6 +11,7 @@ class View(QtWidgets.QMainWindow):
     def __init__(self):
         super(View, self).__init__()
         self.view = uic.loadUi('player.ui', self)
+        self.dialog = uic.loadUi('new_playlist.ui')
         self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
         self.createAlbumView()
         self.adjustWidgets()
@@ -103,3 +104,7 @@ class View(QtWidgets.QMainWindow):
         self.view.albumName.show()
         self.view.albumCover.show()
         self.view.albumYear.show()
+
+    def createPlaylistDialog(self):
+        self.dialog.lineEditNewPlaylist.clear()
+        self.dialog.show()

@@ -713,8 +713,15 @@ border-color:rgb(46, 52, 54);</string>
     <addaction name="separator"/>
     <addaction name="actionClear_up_next"/>
    </widget>
+   <widget class="QMenu" name="menuPlaylist">
+    <property name="title">
+     <string>Playlist</string>
+    </property>
+    <addaction name="actionCreate_playlist"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSong"/>
+   <addaction name="menuPlaylist"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen_File">
@@ -762,6 +769,11 @@ border-color:rgb(46, 52, 54);</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionCreate_playlist">
+   <property name="text">
+    <string>Create playlist</string>
    </property>
   </action>
  </widget>

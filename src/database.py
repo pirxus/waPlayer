@@ -3,14 +3,52 @@
 from tinydb import TinyDB, Query
 import json
 
-
 class Database(TinyDB, Query):
     def __init__(self):
         self.database = TinyDB('../db_files/database.json')
+        self.playlists = TinyDB('../db_files/playlists.json')
+
+    def create_playlist(self, playlist):
+        songs = self.get_all(self.playlists)
+        if songs == []:
+            self.playlists.insert({'playlist': []})
+        playlists = self.get_all_playlists()
+        if playlist not in playlists:
+            playlists.append(playlist)
+        self.playlists.update({'playlist': playlists})
+
+    def delete_playlist(self, playlist):
+        playlists = self.get_all_playlists()
+        if playlist in playlists:
+            playlists.remove(playlist)
+        songs = self.search_by_playlist(playlist)
+        for song in songs:
+            self.remove_from_playlist(song['path'], playlist)
+
+        self.playlists.update({'playlist': playlists})
 
     # inserts new song into the database
     def insert_song(self, song):
         self.database.insert(song.to_json())
+
+    def insert_playlist(self, playlist):
+        self.database.insert(song.to_json())
+    
+    def assign_playlist(self, songPath, playlist):
+        query = Query()
+        songPath = self.fix_str(songPath)
+        playlists = self.get_song_playlists(songPath)
+        if playlist not in playlists:
+            playlists.append(playlist)
+        self.database.update({'playlist': playlists}, query.path.search(songPath))
+
+    def remove_from_playlist(self, songPath, playlist):
+        query = Query()
+        songPath = self.fix_str(songPath)
+        playlists = self.get_song_playlists(songPath)
+        if playlist in playlists:
+            playlists.remove(playlist)
+        self.database.update({'playlist': playlists}, query.path.search(songPath))
 
     def search_by_name(self, name):
         query = Query()
@@ -29,9 +67,16 @@ class Database(TinyDB, Query):
         query = Query()
         return self.database.search(query.album.search(album))
 
+    def search_by_playlist(self, playlist):
+        if playlist == '':
+            return None
+        playlist = self.fix_str(playlist)
+        query = Query()
+        return self.database.search(query.playlist.any(playlist))
+
     # returns json list of all song in database
-    def get_all(self):
-        return self.database.all()
+    def get_all(self, db):
+        return db.all()
 
     def get_path_track_number(self, name, album, artist):
         query = Query()
@@ -94,6 +139,33 @@ class Database(TinyDB, Query):
 
         return albumList
 
+    def get_all_playlists(self):
+        playlistList = []
+        query = Query()
+        search = self.playlists.search(query.playlist.exists())
+        for entry in search:
+            playlists = entry['playlist']
+            for playlist in playlists:
+                if playlist not in playlistList:
+                    playlistList.append(playlist)
+
+        return playlistList
+
+    def get_song_playlists(self, songPath):
+        playlistList = []
+        songPath = self.fix_str(songPath)
+        query = Query()
+        search = self.database.search(query.path.search(songPath))
+        if search == []:
+            return []
+        search = search[0]
+        playlists = search['playlist']
+        for playlist in playlists:
+            if playlist not in playlistList:
+                playlistList.append(playlist)
+
+        return playlistList
+
     # deletes all item matching name
     def delete_by_name(self, name):
         query = Query()
@@ -114,6 +186,7 @@ class Song:
         self.year = year
         self.time = time
         self.track_no = track_no
+        self.playlist = []
         self.picture = None
 
     def update_name(self, name):
@@ -136,6 +209,10 @@ class Song:
 
     def update_track_no(self, track_no):
         self.track_no = track_no
+
+    def update_playlist(self, playlistName):
+        if playlistName not in self.playlist:
+            self.playlist.append(playlistName)
 
     # converts song to json so it can be stored into the database
     def to_json(self):
