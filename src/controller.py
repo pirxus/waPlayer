@@ -438,8 +438,11 @@ class Controller(QWidget):
 
         num = len(alb)
         counter = 0
+        offset = 2
+        if num > 4:
+            offset = 0
         # i = number of albums  divided by 4 +1  times 2 because of album title
-        for i in range(num//4 + 4):
+        for i in range(num//4 + offset):
             for j in range(4):
                 if (counter < num):
                     name = alb[counter]
@@ -474,7 +477,6 @@ class Controller(QWidget):
                     subLayout.addWidget(albumCover)
                     subLayout.addWidget(title)
                 else:
-                    title.setText('')
                     self.spaceItem = QSpacerItem(138, 138, QSizePolicy.Fixed)
                     subLayout.addSpacerItem(self.spaceItem)
                     subLayout.addWidget(title)
