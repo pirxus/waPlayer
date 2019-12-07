@@ -298,7 +298,7 @@ class Controller(QWidget):
                 album = items[4 * i + 2].text()
                 artist = items[4 * i + 3].text()
                 print('Adding to up next: ' + name + ' by ' + artist)
-                path = self.database.get_path_track_number(name, album, artist) #get path from database
+                path = self.database.get_path_track_number(name, album, artist)[0] #get path from database
 
                 if path != None:
                     url = QUrl.fromLocalFile(path)
@@ -337,7 +337,7 @@ class Controller(QWidget):
                 album = items[4 * i + 2].text()
                 artist = items[4 * i + 3].text()
                 print('Playing next: ' + name + ' by ' + artist)
-                path = self.database.get_path_track_number(name, album, artist) #get path from database
+                path = self.database.get_path_track_number(name, album, artist)[0] #get path from database
 
                 if path != None:
                     url = QUrl.fromLocalFile(path)
