@@ -1,10 +1,10 @@
 from database import Database, Song
 from view import View
-
-import eyed3, eyed3.id3, json, threading
 from clickable_label import QLabelClickable, QLabelClickableWithParent
 from my_table_item import MyTableItem
+from playlist import PlaylistModel
 
+import eyed3, eyed3.id3, json, threading
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QCursor
@@ -22,12 +22,28 @@ class Controller(QWidget):
         self.view = View()
         self.player = QMediaPlayer()
         self.playlist = QMediaPlaylist()
+        self.player.setPlaylist(self.playlist)
+        self.playlistModel = PlaylistModel(self.playlist)
+        self.view.queue.playlistView.setModel(self.playlistModel)
         self.database = Database()
+        self.selection_model = self.view.queue.playlistView.selectionModel()
+        self.selection_model.selectionChanged.connect(self.playlist_selection_changed)
+
         self.setupView()
         self.setupPlayer()
         self.populateLibrary()
 
         self.playerState = -1 # 0 - stopped, 1 - playing, 2 - paused
+
+    def playlist_selection_changed(self, ix):
+        # We receive a QItemSelection from selectionChanged.
+        i = ix.indexes()[0].row()
+        self.playlist.setCurrentIndex(i)
+
+    def playlist_position_changed(self, i):
+        if i > -1:
+            ix = self.playlistModel.index(i)
+            self.view.queue.playlistView.setCurrentIndex(ix)
 
     # This method sets up the connections between the ui and the backend
     def setupView(self):
@@ -47,6 +63,7 @@ class Controller(QWidget):
         self.view.pushButtonNext.clicked.connect(self.nextButtonPressed)
         self.view.pushButtonShuffle.clicked.connect(self.playlist.shuffle)
         self.view.pushButtonAddToPlaylist.clicked.connect(self.addToPlaylistPressed)
+        self.view.queue.pushButtonClearQueue.clicked.connect(self.clearQueue)
 
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
@@ -57,11 +74,21 @@ class Controller(QWidget):
         self.view.tableAllSongs.itemDoubleClicked.connect(self.songSelectedFromAllSongs)
         self.view.tableAlbumContent.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
         self.view.albumSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
-        # has icon?
+        self.view.playlistSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
+
+        #self.view.close_queue
+
+        #-------------------------------queue
+        self.view.pushButtonQueue.clicked.connect(self.view.openQueue)
+        # todo self.view.clear_queue.clicked
+        #todo self.playlist_list_viewclicked
 
         # custom context menus
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
         self.view.tableAlbumContent.customContextMenuRequested.connect(self.artistTableMenu)
+        self.view.albumSongs.customContextMenuRequested.connect(self.albumSongsMenu)
+        self.view.playlistSongs.customContextMenuRequested.connect(self.playlistSongsMenu)
+
         #dialogs
         self.view.dialog.buttonBox.accepted.connect(self.createNewPlaylist)
 
@@ -328,9 +355,14 @@ class Controller(QWidget):
                         self.playerState = 1
                     else:
                         self.playlist.addMedia(QMediaContent(url))
-        elif tabIndex == 2: # artists tab
+        else:
+            if tabIndex == 1: #albums
+                items = self.view.albumSongs.selectedItems()
+            elif tabIndex == 2: #artists
+                items = self.view.tableAlbumContent.selectedItems()
+            elif tabIndex == 3: #playlists
+                items = self.view.playlistSongs.selectedItems()
 
-            items = self.view.tableAlbumContent.selectedItems()
             for i in range(len(items) // 2):
                 item = items[2 * i]
                 if item.itemType == 'song':
@@ -370,8 +402,14 @@ class Controller(QWidget):
                         self.playlist.insertMedia(self.playlist.nextIndex() + i,
                                 QMediaContent(url))
 
-        elif tabIndex == 2: # artists tab
-            items = self.view.tableAlbumContent.selectedItems()
+        else:
+            if tabIndex == 1: #albums
+                items = self.view.albumSongs.selectedItems()
+            elif tabIndex == 2: #artists
+                items = self.view.tableAlbumContent.selectedItems()
+            elif tabIndex == 3: #playlists
+                items = self.view.playlistSongs.selectedItems()
+
             for i in range(len(items) // 2):
                 item = items[2 * i]
                 if item.itemType == 'song':
@@ -386,7 +424,6 @@ class Controller(QWidget):
                         self.playerState = 1
                     else:
                         self.playlist.addMedia(QMediaContent(url))
-
 
 
     def playLibraryItem(self):
@@ -409,8 +446,15 @@ class Controller(QWidget):
                     url = QUrl.fromLocalFile(path)
                     self.playlist.addMedia(QMediaContent(url))
 
-        elif tabIndex == 2: # artists tab
-            items = self.view.tableAlbumContent.selectedItems()
+
+        else:
+            if tabIndex == 1: # albums tab
+                items = self.view.albumSongs.selectedItems()
+            elif tabIndex == 2: # artist tab
+                items = self.view.tableAlbumContent.selectedItems()
+            elif tabIndex == 3: # playlist tab
+                items = self.view.playlistSongs.selectedItems()
+
             for i in range(len(items) // 2):
                 item = items[2 * i]
                 if item.itemType == 'song':
@@ -418,10 +462,6 @@ class Controller(QWidget):
 
                     url = QUrl.fromLocalFile(item.path)
                     self.playlist.addMedia(QMediaContent(url))
-        elif tabIndex == 1: # albums tab
-            pass
-        elif tabIndex == 3: # playlists tab
-            pass
 
         if mediaCount != 0: # jump to next song 
             self.playlist.next()
@@ -443,6 +483,14 @@ class Controller(QWidget):
     def artistTableMenu(self, pos):
         artistTable = AllSongsMenuHandler(parent=self)
         artistTable.rightClick(None)
+
+    def albumSongsMenu(self, pos):
+        albumSongs = AllSongsMenuHandler(parent=self)
+        albumSongs.rightClick(None)
+
+    def playlistSongsMenu(self, pos):
+        playlistSongs = AllSongsMenuHandler(parent=self)
+        playlistSongs.rightClick(None)
 
     def playlistCoverMenu(self, pos):
         pos = QtGui.QCursor.pos()
@@ -754,11 +802,7 @@ class AllSongsMenuHandler:
         action = menu.exec_(QtGui.QCursor.pos())
 
         if action == play: # play
-            index = self.parent.view.tabLibrary.currentIndex()
-            #if index == 0:
             self.parent.playLibraryItem()
-            #elif index == 2:
-                #self.parent.playLibraryItem()
 
         elif action == playNext: # play next
             self.parent.playNext()

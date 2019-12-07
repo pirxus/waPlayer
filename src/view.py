@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QPushButton, QMenu, QFrame, QTableWidget, QFrame, QW
     QListWidget, QListWidgetItem, QTableWidgetItem, QHeaderView, QAbstractItemView, QCheckBox
 
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPoint
 from clickable_label import QLabelClickable, QLabelClickableWithParent
 
 class View(QtWidgets.QMainWindow):
@@ -14,17 +14,20 @@ class View(QtWidgets.QMainWindow):
         self.view = uic.loadUi('player.ui', self)
         self.dialog = uic.loadUi('new_playlist.ui')
         self.addToPlaylistDialog = uic.loadUi('addToPlaylist.ui')
+        self.queue = uic.loadUi('queue.ui')
         self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))
         self.createAlbumView()
         self.createPlaylistView()
-        self.adjustWidgets()
         self.show()
+        self.adjustWidgets()
 
     def adjustWidgets(self):
         self.view.tableAllSongs.setColumnWidth(0, 265)
         self.view.tableAllSongs.setColumnWidth(1, 75)
         self.view.tableAlbumContent.setColumnWidth(0, 350)
         self.view.labelPlayerSongName.setStyleSheet("font-weight: bold;")
+        self.queue.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup)
+        self.dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup)
 
     def createAlbumView(self):
             #cover of album
@@ -168,6 +171,7 @@ class View(QtWidgets.QMainWindow):
         self.view.albumYear.show()
 
     def createPlaylistDialog(self):
+        self.dialog.move(self.mapToGlobal(QPoint(0, 0)).x() + 400, self.mapToGlobal(QPoint(0, 0)).y() + 200)
         self.dialog.lineEditNewPlaylist.clear()
         self.dialog.show()
 
@@ -201,3 +205,7 @@ class View(QtWidgets.QMainWindow):
                 self.view.verticalLayoutAddToPList.addWidget(chBox)
 
         self.view.addToPlaylistDialog.show()
+
+    def openQueue(self):
+        self.queue.move(self.mapToGlobal(QPoint(0, 0)).x() + 280, self.mapToGlobal(QPoint(0, 0)).y() + 70)
+        self.queue.show()
