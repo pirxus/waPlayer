@@ -12,6 +12,5 @@ class PlaylistModel(QAbstractListModel):
             af = eyed3.load(media.canonicalUrl().toLocalFile()) # audiofile
             return af.tag.title + ' - ' + af.tag.artist
 
-
     def rowCount(self, index):
         return self.playlist.mediaCount()

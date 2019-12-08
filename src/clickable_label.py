@@ -33,10 +33,3 @@ class QLabelClickableWithParent(QLabel):
             QLabel.mousePressEvent(self, ev)
         else:
             self.clicked.emit(self)
-
-
-    #def enterEvent(self, ev):
-        #self.setStyleSheet("border-color: #B14B88;")
-
-    #def leaveEvent(self, ev):
-       # self.setStyleSheet("border-color: black;")

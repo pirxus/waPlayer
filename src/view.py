@@ -13,7 +13,7 @@ class View(QtWidgets.QMainWindow):
         super(View, self).__init__()
         self.view = uic.loadUi('player.ui', self)
         self.dialog = uic.loadUi('new_playlist.ui')
-        self.addToPlaylistDialog = uic.loadUi('addToPlaylist.ui')
+        self.addToPlaylistDialog = uic.loadUi('add_to_playlist.ui')
         self.queue = uic.loadUi('queue.ui')
 
         self.view.labelPlayerAlbumArt.setPixmap(QPixmap('../assets/stock_album_cover.jpg'))

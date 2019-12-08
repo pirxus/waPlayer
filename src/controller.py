@@ -3,7 +3,6 @@ from view import View
 from clickable_label import QLabelClickable, QLabelClickableWithParent
 from my_table_item import MyTableItem, MyListItem
 from playlist import PlaylistModel
-
 import eyed3, eyed3.id3, json, threading
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
@@ -33,15 +32,6 @@ class Controller(QWidget):
 
         self.playerState = -1 # 0 - stopped, 1 - playing, 2 - paused
 
-    def playlist_selection_changed(self, ix):
-        # We receive a QItemSelection from selectionChanged.
-        i = ix.indexes()[0].row()
-        self.playlist.setCurrentIndex(i)
-
-    def playlist_position_changed(self, i):
-        if i > -1:
-            ix = self.playlistModel.index(i)
-            self.view.queue.playlistView.setCurrentIndex(ix)
 
     # This method sets up the connections between the ui and the backend
     def setupView(self):
@@ -77,12 +67,7 @@ class Controller(QWidget):
         self.view.albumSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
         self.view.playlistSongs.itemDoubleClicked.connect(self.songSelectedFromArtistAlbum)
 
-        #self.view.close_queue
-
-        #-------------------------------queue
         self.view.pushButtonQueue.clicked.connect(self.view.openQueue)
-        # todo self.view.clear_queue.clicked
-        #todo self.playlist_list_viewclicked
 
         # custom context menus
         self.view.tableAllSongs.customContextMenuRequested.connect(self.allSongsMenu)
@@ -92,7 +77,6 @@ class Controller(QWidget):
 
         #dialogs
         self.view.dialog.buttonBox.accepted.connect(self.createNewPlaylist)
-
 
 
     # This method sets up the signals for the player class
@@ -106,6 +90,15 @@ class Controller(QWidget):
 
         self.player.metaDataChanged.connect(self.metaDataChanged)
 
+    def playlist_selection_changed(self, ix):
+        # We receive a QItemSelection from selectionChanged.
+        i = ix.indexes()[0].row()
+        self.playlist.setCurrentIndex(i)
+
+    def playlist_position_changed(self, i):
+        if i > -1:
+            ix = self.playlistModel.index(i)
+            self.view.queue.playlistView.setCurrentIndex(ix)
 
     def openFile(self):
         song = QFileDialog.getOpenFileName(self, "Open Song", "/home/pirx/Music", "Sound Files (*.mp3 *.ogg *.wav *.m4a)")
