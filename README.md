@@ -15,8 +15,7 @@ After launching the waPlayer, just hit ctrl+i to choose your music library folde
 The player can currently correctly import mp3 files only, however, you can use it
 to play just about any standard music format.
 
-If you encounter any problems, just exit the player, open the db_files folder and delete
-the contents of playlists.json and database.json. After that, just try to import the
-library again.
+If you encounter any problems, just exit the player and launch the dbPurge.sh script.
+After that, just try to import the library again.
 
 Happy listening!
