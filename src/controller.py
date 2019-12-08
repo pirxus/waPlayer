@@ -8,9 +8,7 @@ import eyed3, eyed3.id3, json, threading
 from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon, QImage, QCursor
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, \
-    QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, \
-    QSpacerItem, QSizePolicy, QWidgetItem, QCheckBox
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem, QCheckBox
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 FRONT_COVER = eyed3.id3.frames.ImageFrame.FRONT_COVER
@@ -55,7 +53,7 @@ class Controller(QWidget):
         self.view.actionAdd_to_up_next.triggered.connect(self.addToUpNext)
         self.view.actionClear_up_next.triggered.connect(self.clearQueue)
         self.view.actionCreate_playlist.triggered.connect(self.view.createPlaylistDialog)
-        self.view.actionAdd_to_playlist.triggered.connect(self.addToPlaylistButtonPressed)
+        self.view.actionAdd_to_playlist.triggered.connect(self.addToPlaylistContext)
 
         self.view.tabLibrary.tabBarClicked.connect(self.view.goBackAlbumTab)
 
@@ -65,6 +63,7 @@ class Controller(QWidget):
         self.view.pushButtonShuffle.clicked.connect(self.playlist.shuffle)
         self.view.pushButtonAddToPlaylist.clicked.connect(self.addToPlaylistButtonPressed)
         self.view.queue.pushButtonClearQueue.clicked.connect(self.clearQueue)
+        self.view.addToPlaylistDialog.pushButtonCreateNew.clicked.connect(self.view.createPlaylistDialog)
 
         self.view.sliderVolume.valueChanged[int].connect(self.changeVolume)
         self.view.sliderSongProgress.valueChanged[int].connect(self.player.setPosition)
@@ -289,26 +288,75 @@ class Controller(QWidget):
         self.player.setVolume(value)
 
     def addToPlaylistButtonPressed(self):
-        playlists = self.database.get_all_playlists()
         self.getCheckedPlaylists()
-        self.view.displayAddToPlaylist(playlists)
+        self.view.displayAddToPlaylist()
 
     def addToPlaylistContext(self):
-        index = self.view.tabLibrary.currentIndex()
-        if index == 0: #all songs
-            pass
-        elif index == 1: #albums
-            pass
-        elif index == 2: #artists
-            pass
-        else: # playlists
+        tabIndex = self.view.tabLibrary.currentIndex()
+        songs = []
+        if tabIndex == 0: #all songs
+            items = self.view.tableAllSongs.selectedItems()
+            for i in range(len(items) // 4):
+                name = items[4 * i + 0].text()
+                album = items[4 * i + 2].text()
+                artist = items[4 * i + 3].text()
+                songs.append(self.database.get_path_track_number(name, album, artist)[0]) #get path from database
+        else:
+            if tabIndex == 1: #albums
+                items = self.view.albumSongs.selectedItems()
+            elif tabIndex == 2: #artists
+                items = self.view.tableAlbumContent.selectedItems()
+            elif tabIndex == 3: #playlists
+                items = self.view.playlistSongs.selectedItems()
+
+                for i in range(len(items) // 3):
+                    item = items[3 * i]
+                    if item.itemType == 'song':
+                        songs.append(item.path)
+
+                self.getCheckedPlaylistsMultiple(songs)
+                self.view.displayAddToPlaylist()
+                return
+
+            for i in range(len(items) // 2):
+                item = items[2 * i]
+                if item.itemType == 'song':
+                    songs.append(item.path)
+
+        self.getCheckedPlaylistsMultiple(songs)
+        self.view.displayAddToPlaylist()
+    def getCheckedPlaylistsMultiple(self, songs):
+        self.view.addToPlaylistDialog.playlistCheck.clear()
+        self.view.addToPlaylistDialog.playlistCheck.itemChanged.connect(lambda item: self.playlistCheckMultiple(item, songs))
+        if songs == []:
+            return None
+
+        playlists = self.database.get_all_playlists()
+        songPlaylists = []
+        for song in songs:
+            playlistSet = set(songPlaylists)
+            playlists2 = self.database.get_song_playlists(song)
+            songSet = set(playlists2)
+            tmp = songSet - playlistSet
+            songPlaylists = songPlaylists + list(tmp)
+
+        for playlist in playlists:
+            item = MyListItem(songs[0], playlist)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable);
+            item.setText(item.name)
+            if playlist in songPlaylists:
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
+
+            self.view.addToPlaylistDialog.playlistCheck.addItem(item)
 
     def getCheckedPlaylists(self):
         self.view.addToPlaylistDialog.playlistCheck.clear()
-        self.view.addToPlaylistDialog.playlistCheck.itemChanged.connect(self.playlistCheck)
         currentSong = self.player.currentMedia().canonicalUrl().toLocalFile()
         if currentSong == '':
             return None
+        self.view.addToPlaylistDialog.playlistCheck.itemChanged.connect(lambda item: self.playlistCheckMultiple(item, currentSong))
 
         playlists = self.database.get_all_playlists()
         songPlaylists = self.database.get_song_playlists(currentSong)
@@ -323,12 +371,20 @@ class Controller(QWidget):
 
             self.view.addToPlaylistDialog.playlistCheck.addItem(item)
             
-    def playlistCheck(self, item):
+    def playlistCheck(self, item, song):
         action = item.checkState()
         if action == 0:
             self.database.remove_from_playlist(item.path, item.name)
         else:
             self.database.assign_playlist(item.path, item.name)
+
+    def playlistCheckMultiple(self, item, songs):
+        for song in songs:
+            action = item.checkState()
+            if action == 0:
+                self.database.remove_from_playlist(song, item.name)
+            else:
+                self.database.assign_playlist(song, item.name)
 
     def songSelectedFromAllSongs(self, item):
         row = self.view.tableAllSongs.currentRow() 
@@ -469,8 +525,6 @@ class Controller(QWidget):
                 if path != None:
                     url = QUrl.fromLocalFile(path)
                     self.playlist.addMedia(QMediaContent(url))
-
-
         else:
             if tabIndex == 1: # albums tab
                 items = self.view.albumSongs.selectedItems()
@@ -790,6 +844,10 @@ class Controller(QWidget):
         if name != '':
             self.database.create_playlist(name)
         self.createPlaylistGrid()
+        if self.view.addToPlaylistDialog.isVisible():
+            self.view.addToPlaylistDialog.hide()
+            self.addToPlaylistContext()
+            self.view.displayAddToPlaylist()
 
     def deletePlaylist(self, name):
         self.database.delete_playlist(name)
@@ -812,7 +870,7 @@ class AllSongsMenuHandler:
         addToUpNext = menu.addAction("Add to up next")
         menu.addSeparator()
 
-        if tabIndex == 3:
+        if tabIndex == 3 and not self.parent.view.playlistSongs.isVisible():
             deletePlaylist = menu.addAction("Delete playlist")
         else:
             addToPlaylist = menu.addAction("Add to playlist...")
@@ -833,9 +891,12 @@ class AllSongsMenuHandler:
         elif action == addToUpNext: # add to up next
             self.parent.addToUpNext()
 
-        elif tabIndex == 3:
+        elif tabIndex == 3 and not self.parent.view.playlistSongs.isVisible():
             if action == deletePlaylist: # add to up next
                 self.parent.deletePlaylist(name)
+
+        elif action == addToPlaylist:
+            self.parent.addToPlaylistContext()
 
 
 def hhmmss(ms):

@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>250</width>
-    <height>270</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>250</width>
-    <height>270</height>
+    <height>320</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>250</width>
-    <height>270</height>
+    <height>350</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="text">
-    <string>Add to playlist</string>
+    <string>Add to playlist...</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -64,6 +64,35 @@
    </property>
    <property name="focusPolicy">
     <enum>Qt::NoFocus</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonCreateNew">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>275</y>
+     <width>111</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+    background-color: rgb(173, 127, 168);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+}
+QPushButton:pressed {
+    background-color: rgb(117, 80, 123);
+    border-style: inset;
+}</string>
+   </property>
+   <property name="text">
+    <string>Create new...</string>
    </property>
   </widget>
  </widget>

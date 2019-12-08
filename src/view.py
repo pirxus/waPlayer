@@ -192,9 +192,11 @@ class View(QtWidgets.QMainWindow):
         self.view.albumYear.hide()
         self.view.scrollAreaPlaylists.show()
 
-    def displayAddToPlaylist(self, playlists):
+    def displayAddToPlaylist(self):
         self.addToPlaylistDialog.move(self.mapToGlobal(QPoint(0, 0)).x() + 50,
                 self.mapToGlobal(QPoint(0, 0)).y() + 100)
+        self.view.addToPlaylistDialog.raise_();
+        self.view.addToPlaylistDialog.activateWindow();
         self.view.addToPlaylistDialog.show()
 
     def openQueue(self):

@@ -763,6 +763,9 @@ border-color:rgb(46, 52, 54);</string>
     <property name="focusPolicy">
      <enum>Qt::ClickFocus</enum>
     </property>
+    <property name="placeholderText">
+     <string notr="true">Search in library...</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
