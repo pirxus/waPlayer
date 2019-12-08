@@ -286,6 +286,7 @@ class Controller(QWidget):
         self.view.displayAddToPlaylist()
 
     def addToPlaylistContext(self):
+        songs= []
         tabIndex = self.view.tabLibrary.currentIndex()
         songs = []
         if tabIndex == 0: #all songs
