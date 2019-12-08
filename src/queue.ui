@@ -14,7 +14,7 @@
    <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(220, 220, 220)</string>
+   <string notr="true"/>
   </property>
   <widget class="QPushButton" name="pushButtonClearQueue">
    <property name="geometry">
@@ -31,14 +31,32 @@
      <height>200</height>
     </size>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgb(173, 127, 168);</string>
+    <string notr="true">QPushButton {
+    background-color: rgb(213, 195, 224);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+}
+
+QPushButton:hover{
+    background-color:rgba(218, 209, 255, 155);
+	border: inset
+}
+QPushButton:pressed {
+    background-color: rgba(128, 111, 146, 231);
+    border-style: inset;
+}</string>
    </property>
    <property name="text">
     <string>Clear</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>

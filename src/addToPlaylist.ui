@@ -25,6 +25,9 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QLabel" name="labelAddToPlaylist">
    <property name="geometry">
     <rect>
@@ -80,14 +83,19 @@
    </property>
    <property name="styleSheet">
     <string notr="true">QPushButton {
-    background-color: rgb(173, 127, 168);
+    background-color: rgb(213, 195, 224);
     border-style: outset;
     border-width: 2px;
     border-radius: 10px;
     border-color: beige;
 }
+
+QPushButton:hover{
+    background-color:rgba(218, 209, 255, 155);
+	border: inset
+}
 QPushButton:pressed {
-    background-color: rgb(117, 80, 123);
+    background-color: rgba(128, 111, 146, 231);
     border-style: inset;
 }</string>
    </property>
