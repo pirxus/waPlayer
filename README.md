@@ -10,7 +10,7 @@ the program either by launching the 'waPlayer' script or by going to the src fol
 executing 'python3 main.py'
 
 
-# ======LIBRARY IMPORT========
+# Library import
 After launching the waPlayer, just hit ctrl+i to choose your music library folder.
 The player can currently correctly import mp3 files only, however, you can use it
 to play just about any standard music format.
@@ -20,7 +20,7 @@ After that, just try to import the library again.
 
 Happy listening!
 
-# AUTHORS
-xsedla1h
+# Authors
+xsedla1h - pirxus
 xsarva00
 xosval03
