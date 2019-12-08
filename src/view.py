@@ -1,3 +1,8 @@
+##
+# authors: xsedla1h, xsarva00, xosval03
+#
+# View module of the player
+
 from PyQt5 import QtCore, uic, QtWidgets
 
 from PyQt5.QtWidgets import QPushButton, QMenu, QFrame, QTableWidget, QFrame, QWidget, QVBoxLayout, QLabel, QListView, \

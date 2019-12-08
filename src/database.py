@@ -1,3 +1,6 @@
+##
+# authors: xsedla1h, xsarva00, xosval03
+#
 # Player database module
 
 from tinydb import TinyDB, Query

@@ -1,3 +1,7 @@
+##
+# authors: xsedla1h, xsarva00, xosval03
+#
+
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QListWidgetItem
 import controller
 

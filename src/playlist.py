@@ -1,3 +1,8 @@
+##
+# authors: xsedla1h, xsarva00, xosval03
+#
+# Module implementing the abstrac playlist model for the queue dialog
+
 from PyQt5.QtCore import QAbstractListModel, Qt
 import eyed3, eyed3.id3, json, threading
 

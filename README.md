@@ -19,3 +19,8 @@ If you encounter any problems, just exit the player and launch the dbPurge.sh sc
 After that, just try to import the library again.
 
 Happy listening!
+
+#AUTHORS
+xsedla1h
+xsarva00
+xosval03

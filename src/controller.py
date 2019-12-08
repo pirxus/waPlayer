@@ -1,3 +1,8 @@
+##
+# authors: xsedla1h, xsarva00, xosval03
+#
+# Main logic module of the player
+
 from database import Database, Song
 from view import View
 from clickable_label import QLabelClickable, QLabelClickableWithParent

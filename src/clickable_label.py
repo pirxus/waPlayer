@@ -1,3 +1,7 @@
+##
+# authors: xsedla1h, xsarva00, xosval03
+#
+
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
