@@ -357,7 +357,7 @@ class Controller(QWidget):
         currentSong = self.player.currentMedia().canonicalUrl().toLocalFile()
         if currentSong == '':
             return None
-        self.view.addToPlaylistDialog.playlistCheck.itemChanged.connect(lambda item: self.playlistCheckMultiple(item, currentSong))
+        self.view.addToPlaylistDialog.playlistCheck.itemChanged.connect(lambda item: self.playlistCheck(item, currentSong))
 
         playlists = self.database.get_all_playlists()
         songPlaylists = self.database.get_song_playlists(currentSong)
