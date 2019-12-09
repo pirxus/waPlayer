@@ -152,8 +152,10 @@ class Controller(QWidget):
                     self.view.tableAllSongs.addItem(url.fileName())
 
     def importLibrary(self):
-        self.database.db_purge()
         folder = QFileDialog.getExistingDirectory(self, 'Open Music Folder', '~/')
+        if folder == '':
+            return
+        self.database.db_purge()
         thread = threading.Thread(target = self.importRecursiveIterator, args = (folder, ), daemon = True)
         thread.start()
         thread.join()
@@ -304,8 +306,16 @@ class Controller(QWidget):
         else:
             if tabIndex == 1: #albums
                 items = self.view.albumSongs.selectedItems()
+                for i in range(len(items) // 2):
+                    item = items[2 * i]
+                    if item.itemType == 'song':
+                        songs.append(item.path)
             elif tabIndex == 2: #artists
                 items = self.view.tableAlbumContent.selectedItems()
+                for i in range(len(items) // 2):
+                    item = items[2 * i]
+                    if item.itemType == 'song':
+                        songs.append(item.path)
             elif tabIndex == 3: #playlists
                 items = self.view.playlistSongs.selectedItems()
 
@@ -314,17 +324,9 @@ class Controller(QWidget):
                     if item.itemType == 'song':
                         songs.append(item.path)
 
-                self.getCheckedPlaylistsMultiple(songs)
-                self.view.displayAddToPlaylist()
-                return
-
-            for i in range(len(items) // 2):
-                item = items[2 * i]
-                if item.itemType == 'song':
-                    songs.append(item.path)
-
         self.getCheckedPlaylistsMultiple(songs)
         self.view.displayAddToPlaylist()
+
     def getCheckedPlaylistsMultiple(self, songs):
         self.view.addToPlaylistDialog.playlistCheck.clear()
         self.view.addToPlaylistDialog.playlistCheck.itemChanged.connect(lambda item: self.playlistCheckMultiple(item, songs))
@@ -374,9 +376,9 @@ class Controller(QWidget):
     def playlistCheck(self, item, song):
         action = item.checkState()
         if action == 0:
-            self.database.remove_from_playlist(item.path, item.name)
+            self.database.remove_from_playlist(song, item.name)
         else:
-            self.database.assign_playlist(item.path, item.name)
+            self.database.assign_playlist(song, item.name)
 
     def playlistCheckMultiple(self, item, songs):
         for song in songs:
@@ -917,8 +919,8 @@ class Controller(QWidget):
         self.createPlaylistGrid()
         if self.view.addToPlaylistDialog.isVisible():
             self.view.addToPlaylistDialog.hide()
-            self.addToPlaylistContext()
-            self.view.displayAddToPlaylist()
+            #self.addToPlaylistContext()
+            #self.view.displayAddToPlaylist()
 
     def deletePlaylist(self, name):
         self.database.delete_playlist(name)

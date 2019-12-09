@@ -107,6 +107,7 @@ class Database(TinyDB, Query):
         string = string.replace('{', '\{')
         string = string.replace('}', '\}')
         string = string.replace('+', '\+')
+        string = string.replace('*', '\*')
         return string
 
     def get_artists(self):
