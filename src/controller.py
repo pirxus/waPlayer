@@ -736,7 +736,7 @@ class Controller(QWidget):
                 time.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.view.albumSongs.setItem(counter, 1, time)
                 counter += 1
-
+       
     def createPlaylistGrid(self):
         self.scrollAreaWidgetContentsPlaylist = QWidget()
         self.scrollAreaWidgetContentsPlaylist.setStyleSheet('QWidget {background-color: #ffffff;}')
@@ -835,7 +835,7 @@ class Controller(QWidget):
         playlist_songs = self.database.search_by_playlist(label.name)
         self.view.playlistSongs.clearContents() #clear the table
         for i in range(self.view.playlistSongs.rowCount()):
-            self.view.playlistSongs.removeRow(0)
+            self.view.playlistSongs.removeRow(i)
         self.view.openPlaylist()
         self.view.playlistButton.clicked.connect(self.view.goBackPlaylist)
         self.view.playlistCover.clicked.connect(self.playPlaylist)
@@ -857,10 +857,17 @@ class Controller(QWidget):
                 counter += 1
 
     def playAlbum(self):
-        pass
+        for i in range(self.view.albumSongs.rowCount()):
+            print('playing' + str(self.view.albumSongs.item(i, 0).name))
+            url = QUrl.fromLocalFile(self.view.albumSongs.item(i, 0).path)
+            self.playlist.addMedia(QMediaContent(url))
+
 
     def playPlaylist(self):
-        pass
+        print(self.view.playlistSongs.rowCount())
+        for i in range(self.view.playlistSongs.rowCount()):
+            url = QUrl.fromLocalFile(self.view.playlistSongs.item(i, 0).path)
+            self.playlist.addMedia(QMediaContent(url))
 
     def artistSelected(self, item):
         self.loadArtistAlbums(item.text())
@@ -909,8 +916,6 @@ class Controller(QWidget):
                 return QPixmap.fromImage(QImage.fromData(coverArt))
         return QPixmap('../assets/stock_album_cover.jpg')
 
-    def playAlbum(self):
-        pass
 
     def createNewPlaylist(self):
         name = self.view.dialog.lineEditNewPlaylist.text()
