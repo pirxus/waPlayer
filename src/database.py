@@ -181,6 +181,16 @@ class Database(TinyDB, Query):
         self.database.purge()
         self.playlists.purge()
 
+    def get_all_names(self):
+        nameList = []
+        query = Query()
+        search = self.database.search(query.name.exists())
+        for entry in search:
+            name = entry['name']
+            if name not in nameList:
+                nameList.append(name)
+
+        return nameList
 
 class Song:
     def __init__(self, path, name, artist, album, year, time, track_no):
