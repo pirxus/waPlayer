@@ -351,7 +351,7 @@ class Controller(QWidget):
 
         for playlist in playlists:
             item = MyListItem(songs[0], playlist)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable);
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setText(item.name)
             if playlist in songPlaylists:
                 item.setCheckState(Qt.Checked)
@@ -371,7 +371,7 @@ class Controller(QWidget):
         songPlaylists = self.database.get_song_playlists(currentSong)
         for playlist in playlists:
             item = MyListItem(currentSong, playlist)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable);
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setText(item.name)
             if playlist in songPlaylists:
                 item.setCheckState(Qt.Checked)
@@ -973,7 +973,6 @@ class Controller(QWidget):
 
 
     def search_handler(self, index):
-        self.view.setFocus()
         db = Database()
         item = db.search_by_name(index.data())
 

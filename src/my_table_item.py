@@ -23,7 +23,7 @@ class MyListItem(QListWidgetItem):
         self.path = path
         self.name = name
 
-class MytableItemDragDrop(QTableWidgetItem):
+"""class MytableItemDragDrop(QTableWidgetItem):
 
     def __init__(self, itemType, path, artist, album, name, time, parent=None):
         QTableWidgetItem.__init__(self, parent)
@@ -43,4 +43,4 @@ class MytableItemDragDrop(QTableWidgetItem):
             e.ignore()
 
     def dropEvent(self, e):
-        self.setText(e.mimeData().text())
+        self.setText(e.mimeData().text())"""
