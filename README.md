@@ -1,3 +1,7 @@
+## WARNING!
+This project needs serious refactoring and the player itself is full of bugs... This was a school project
+written in the span of a few days so please take it with a grain of salt.. :)
+
 # waPlayer
 
 aka Wiggly Air Player... is a simple music player written with Python 3 and PyQt5.
