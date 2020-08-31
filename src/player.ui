@@ -170,11 +170,11 @@ QPushButton:pressed {
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>true</bool>
       </attribute>
-      <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>20</number>
-      </attribute>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>150</number>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>20</number>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>false</bool>
@@ -273,8 +273,8 @@ QPushButton:pressed {
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>637</width>
-         <height>397</height>
+         <width>639</width>
+         <height>399</height>
         </rect>
        </property>
       </widget>
@@ -356,11 +356,11 @@ QPushButton:pressed {
       <attribute name="horizontalHeaderVisible">
        <bool>false</bool>
       </attribute>
-      <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>10</number>
-      </attribute>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>50</number>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>10</number>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>false</bool>
@@ -442,8 +442,8 @@ QPushButton:pressed {
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>637</width>
-         <height>397</height>
+         <width>639</width>
+         <height>399</height>
         </rect>
        </property>
       </widget>
@@ -832,22 +832,25 @@ border-color:rgb(46, 52, 54);</string>
      </layout>
     </widget>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QFrame" name="frame_search">
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>15</y>
+      <y>0</y>
       <width>641</width>
-      <height>31</height>
+      <height>51</height>
      </rect>
     </property>
-    <property name="focusPolicy">
-     <enum>Qt::ClickFocus</enum>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
-    <property name="placeholderText">
-     <string notr="true">Search in library...</string>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
    </widget>
+   <zorder>frame_search</zorder>
+   <zorder>tabLibrary</zorder>
+   <zorder>frame</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -855,7 +858,7 @@ border-color:rgb(46, 52, 54);</string>
      <x>0</x>
      <y>0</y>
      <width>966</width>
-     <height>29</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

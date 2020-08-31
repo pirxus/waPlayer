@@ -9,10 +9,12 @@ from clickable_label import QLabelClickable, QLabelClickableWithParent
 from my_table_item import MyTableItem, MyListItem
 from playlist import PlaylistModel
 import eyed3, eyed3.id3, json, threading
-from PyQt5 import QtGui
-from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize
-from PyQt5.QtGui import QPixmap, QIcon, QImage, QCursor
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, QSpacerItem, QSizePolicy, QWidgetItem, QCheckBox
+from PyQt5 import QtGui, QtCore
+from PyQt5.QtCore import QUrl, QDirIterator, Qt, QSize, QStringListModel
+from PyQt5.QtGui import QPixmap, QIcon, QImage, QCursor, QStandardItemModel
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QFileDialog, QAction, QHBoxLayout, \
+    QVBoxLayout, QSlider, QGraphicsScene, QGraphicsView, QTableWidgetItem, QTableWidget, QMenu, QGridLayout, QLabel, \
+    QSpacerItem, QSizePolicy, QWidgetItem, QCheckBox, QCompleter, QLineEdit
 from PyQt5.QtMultimedia import QMediaPlaylist, QMediaPlayer, QMediaContent, QMediaMetaData
 
 FRONT_COVER = eyed3.id3.frames.ImageFrame.FRONT_COVER
@@ -36,7 +38,10 @@ class Controller(QWidget):
         self.populateLibrary()
 
         self.playerState = -1 # 0 - stopped, 1 - playing, 2 - paused
+        #search
+        self.searchInit()
 
+        # self.search()
 
     # This method sets up the connections between the ui and the backend
     def setupView(self):
@@ -83,6 +88,8 @@ class Controller(QWidget):
         #dialogs
         self.view.dialog.buttonBox.accepted.connect(self.createNewPlaylist)
 
+        #search
+        #self.view.searchBar.textChanged.connect(self.searchInit)
 
     # This method sets up the signals for the player class
     def setupPlayer(self):
@@ -344,7 +351,7 @@ class Controller(QWidget):
 
         for playlist in playlists:
             item = MyListItem(songs[0], playlist)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable);
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setText(item.name)
             if playlist in songPlaylists:
                 item.setCheckState(Qt.Checked)
@@ -364,7 +371,7 @@ class Controller(QWidget):
         songPlaylists = self.database.get_song_playlists(currentSong)
         for playlist in playlists:
             item = MyListItem(currentSong, playlist)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable);
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setText(item.name)
             if playlist in songPlaylists:
                 item.setCheckState(Qt.Checked)
@@ -622,8 +629,8 @@ class Controller(QWidget):
     def clearQueue(self):
         if self.playlist.currentIndex() < self.playlist.mediaCount() - 1:
             self.playlist.removeMedia(
-                    self.playlist.currentIndex() + 1,
-                    self.playlist.mediaCount() - 1)
+            self.playlist.currentIndex() + 1,
+            self.playlist.mediaCount() - 1)
 
     def allSongsMenu(self, pos):
         allSongsTable = AllSongsMenuHandler(parent=self)
@@ -736,7 +743,7 @@ class Controller(QWidget):
                 time.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.view.albumSongs.setItem(counter, 1, time)
                 counter += 1
-
+       
     def createPlaylistGrid(self):
         self.scrollAreaWidgetContentsPlaylist = QWidget()
         self.scrollAreaWidgetContentsPlaylist.setStyleSheet('QWidget {background-color: #ffffff;}')
@@ -831,11 +838,10 @@ class Controller(QWidget):
                 counter = counter + 1
 
     def playlistLabelClicked(self, label):
-        # todo change to playlist
         playlist_songs = self.database.search_by_playlist(label.name)
         self.view.playlistSongs.clearContents() #clear the table
         for i in range(self.view.playlistSongs.rowCount()):
-            self.view.playlistSongs.removeRow(0)
+            self.view.playlistSongs.removeRow(i)
         self.view.openPlaylist()
         self.view.playlistButton.clicked.connect(self.view.goBackPlaylist)
         self.view.playlistCover.clicked.connect(self.playPlaylist)
@@ -857,10 +863,30 @@ class Controller(QWidget):
                 counter += 1
 
     def playAlbum(self):
-        pass
+        # adding media on beginning of the queue
+        for i in range(self.view.albumSongs.rowCount()-1, -1, -1):
+            print('adding' + str(self.view.albumSongs.item(i, 0).name))
+            url = QUrl.fromLocalFile(self.view.albumSongs.item(i, 0).path)
+            self.playlist.insertMedia(0, QMediaContent(url))
+        # start playing from the beginning of the queue
+        self.playlist.setCurrentIndex(0)
+        self.player.play()
+        self.playerState = 1
+        self.view.pushButtonPlay.setIcon(
+            QIcon('../assets/Pause.png'))
+
 
     def playPlaylist(self):
-        pass
+        for i in range(self.view.playlistSongs.rowCount()-1, -1, -1):
+            print('adding' + str(self.view.playlistSongs.item(i, 0).name))
+            url = QUrl.fromLocalFile(self.view.playlistSongs.item(i, 0).path)
+            #self.playlist.addMedia(QMediaContent(url))
+            self.playlist.insertMedia(0, QMediaContent(url))
+        self.playlist.setCurrentIndex(0)
+        self.player.play()
+        self.playerState = 1
+        self.view.pushButtonPlay.setIcon(
+            QIcon('../assets/Pause.png'))
 
     def artistSelected(self, item):
         self.loadArtistAlbums(item.text())
@@ -909,8 +935,6 @@ class Controller(QWidget):
                 return QPixmap.fromImage(QImage.fromData(coverArt))
         return QPixmap('../assets/stock_album_cover.jpg')
 
-    def playAlbum(self):
-        pass
 
     def createNewPlaylist(self):
         name = self.view.dialog.lineEditNewPlaylist.text()
@@ -926,6 +950,44 @@ class Controller(QWidget):
         self.database.delete_playlist(name)
         self.createPlaylistGrid()
 
+    def searchInit(self):
+        vbox = QVBoxLayout()
+        db = Database()
+        self.searchnames = db.get_all_names()
+
+        self.view.frame_search.setLayout(vbox)
+
+        self.searchModel = QStringListModel()
+        self.searchModel.setStringList(self.searchnames)
+
+        self.completer = QCompleter()
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setModel(self.searchModel)
+
+        self.lineEdit = QLineEdit()
+        self.lineEdit.setPlaceholderText("Search by name")
+        self.lineEdit.setCompleter(self.completer)
+        self.lineEdit.setClearButtonEnabled(True)
+        self.completer.activated[QtCore.QModelIndex].connect(self.search_handler)
+        vbox.addWidget(self.lineEdit)
+
+
+    def search_handler(self, index):
+        db = Database()
+        item = db.search_by_name(index.data())
+
+        url = QUrl.fromLocalFile(item[0]['path'])
+        self.playlist.insertMedia(0, QMediaContent(url))
+
+        if self.playerState == -1:
+            self.player.play()
+            self.playerState = 1
+        else:
+            self.playlist.setCurrentIndex(0)
+            self.player.play()
+
+        self.view.pushButtonPlay.setIcon(
+            QIcon('../assets/Pause.png'))
 
 class AllSongsMenuHandler:
     def __init__(self, parent=None):
@@ -970,6 +1032,7 @@ class AllSongsMenuHandler:
 
         elif action == addToPlaylist:
             self.parent.addToPlaylistContext()
+
 
 
 def hhmmss(ms):
